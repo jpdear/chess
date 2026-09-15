@@ -19,8 +19,13 @@ public class ChessPiece {
     }
 
     public ChessPiece(ChessPiece other) {
-        this.pieceType = other.pieceType;
-        this.pieceColor = other.pieceColor;
+        if (other == null) {
+            this.pieceType = null;
+            this.pieceColor = null;
+        } else {
+            this.pieceType = other.pieceType;
+            this.pieceColor = other.pieceColor;
+        }
     }
 
     /**
@@ -46,7 +51,9 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        PieceType copy = pieceType;
+
+        return copy;
     }
 
     /**
