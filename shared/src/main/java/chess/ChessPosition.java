@@ -12,11 +12,11 @@ public class ChessPosition {
     private final int col;
 
     public ChessPosition(int row, int col) {
-        if (row > 8 || row < 0) {
+        if (row > 8 || row < 1) {
             throw new IllegalArgumentException("Row must be between 0-8");
         }
 
-        if (col > 8 || col < 0) {
+        if (col > 8 || col < 1) {
             throw new IllegalArgumentException("Col must be between 0-8");
         }
 
