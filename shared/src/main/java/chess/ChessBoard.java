@@ -1,6 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -11,6 +11,14 @@ import java.util.ArrayList;
 public class ChessBoard {
 
     private ChessPiece[][] board = new ChessPiece[8][8];
+    public final Map<ChessPiece.PieceType, MoveBehavior> moveBehaviors = Map.of(
+            ChessPiece.PieceType.KING, new KingMoveBehavior(),
+            ChessPiece.PieceType.QUEEN, new QueenMoveBehavior(),
+            ChessPiece.PieceType.ROOK, new RookMoveBehavior(),
+            ChessPiece.PieceType.BISHOP, new BishopMoveBehavior(),
+            ChessPiece.PieceType.KNIGHT, new KnightMoveBehavior(),
+            ChessPiece.PieceType.PAWN, new PawnMoveBehavior()
+    );
 
     public ChessBoard() {
         
