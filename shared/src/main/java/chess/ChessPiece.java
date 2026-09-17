@@ -20,13 +20,8 @@ public class ChessPiece {
     }
 
     public ChessPiece(ChessPiece other) {
-        if (other == null) {
-            this.pieceType = null;
-            this.pieceColor = null;
-        } else {
-            this.pieceType = other.pieceType;
-            this.pieceColor = other.pieceColor;
-        }
+        this.pieceType = other.pieceType;
+        this.pieceColor = other.pieceColor;
     }
 
     @Override
@@ -66,7 +61,9 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        ChessGame.TeamColor copy = pieceColor;
+
+        return copy;
     }
 
     /**
@@ -86,8 +83,9 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        MoveBehavior pieceMoveBehavior = board.moveBehaviors.get(pieceType);
+        MovementRules rules = new MovementRules(board, myPosition);
+        MoveBehavior moves = rules.getMoves(board.getPiece(myPosition).getPieceType());
 
-        return pieceMoveBehavior.getValidMoves(board, myPosition);
+        return moves.getValidMoves();
     }
 }
