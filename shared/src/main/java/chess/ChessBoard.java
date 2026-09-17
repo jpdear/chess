@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -13,14 +12,6 @@ import java.util.Objects;
 public class ChessBoard {
 
     private ChessPiece[][] board = new ChessPiece[8][8];
-    public final Map<ChessPiece.PieceType, MoveBehavior> moveBehaviors = Map.of(
-            ChessPiece.PieceType.KING, new KingMoveBehavior(),
-            ChessPiece.PieceType.QUEEN, new QueenMoveBehavior(),
-            ChessPiece.PieceType.ROOK, new RookMoveBehavior(),
-            ChessPiece.PieceType.BISHOP, new BishopMoveBehavior(),
-            ChessPiece.PieceType.KNIGHT, new KnightMoveBehavior(),
-            ChessPiece.PieceType.PAWN, new PawnMoveBehavior()
-    );
 
     public ChessBoard() {
         
@@ -34,12 +25,12 @@ public class ChessBoard {
 
         ChessBoard that = (ChessBoard) o;
 
-        return Objects.deepEquals(board, that.board) && Objects.equals(moveBehaviors, that.moveBehaviors);
+        return Objects.deepEquals(board, that.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(board), moveBehaviors);
+        return Objects.hash(Arrays.deepHashCode(board));
     }
 
     @Override
@@ -71,6 +62,10 @@ public class ChessBoard {
         int row = position.getRow();
         int col = position.getColumn();
         ChessPiece piece = board[row-1][col-1];
+
+        if (piece == null) {
+            return null;
+        }
 
         return new ChessPiece(piece);
     }
