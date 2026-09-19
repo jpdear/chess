@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -10,7 +11,38 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final PieceType pieceType;
+    private final ChessGame.TeamColor pieceColor;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        pieceType = type;
+        this.pieceColor = pieceColor;
+    }
+
+    public ChessPiece(ChessPiece other) {
+        this.pieceType = other.pieceType;
+        this.pieceColor = other.pieceColor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ChessPiece that = (ChessPiece) o;
+
+        return pieceType == that.pieceType && pieceColor == that.pieceColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceType, pieceColor);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s - %s", pieceType, pieceColor);
     }
 
     /**
@@ -29,14 +61,18 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        ChessGame.TeamColor copy = pieceColor;
+
+        return copy;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        PieceType copy = pieceType;
+
+        return copy;
     }
 
     /**
@@ -47,6 +83,9 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        MovementRules rules = new MovementRules(board, myPosition);
+        MoveBehavior moves = rules.getMoves(board.getPiece(myPosition).getPieceType());
+
+        return moves.getValidMoves();
     }
 }
