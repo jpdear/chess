@@ -36,7 +36,9 @@ public class PawnMoveBehavior extends MoveBehavior {
 
             ChessGame.TeamColor checkColor = checkPiece.getTeamColor();
 
-            if (checkColor == color) return null;
+            if (checkColor == color) {
+                return null;
+            }
         } else {
             if (checkPiece != null) {
                 return null;
@@ -46,7 +48,9 @@ public class PawnMoveBehavior extends MoveBehavior {
                 ChessPosition checkMidPosition = new ChessPosition(checkRow-directionModifier, checkCol);
                 ChessPiece checkMidPiece = board.getPiece(checkMidPosition);
 
-                if (checkMidPiece != null) return null;
+                if (checkMidPiece != null) {
+                    return null;
+                }
             }
         }
 
