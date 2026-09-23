@@ -3,16 +3,10 @@ package chess;
 import java.util.Map;
 
 public class MovementRules {
-    private final ChessBoard board;
-    private final ChessPosition position;
+    private final Map<ChessPiece.PieceType, MoveBehavior> moveBehaviors;
 
     public MovementRules(ChessBoard board, ChessPosition position) {
-        this.board = board;
-        this.position = position;
-    }
-
-    public MoveBehavior getMoves(ChessPiece.PieceType pieceType) {
-        Map<ChessPiece.PieceType, MoveBehavior> moveBehaviors = Map.of(
+        moveBehaviors = Map.of(
                 ChessPiece.PieceType.BISHOP, new BishopMoveBehavior(board, position),
                 ChessPiece.PieceType.KING, new KingMoveBehavior(board, position),
                 ChessPiece.PieceType.KNIGHT, new KnightMoveBehavior(board, position),
@@ -20,7 +14,9 @@ public class MovementRules {
                 ChessPiece.PieceType.ROOK, new RookMoveBehavior(board, position),
                 ChessPiece.PieceType.PAWN, new PawnMoveBehavior(board, position)
         );
+    }
 
+    public MoveBehavior getMoves(ChessPiece.PieceType pieceType) {
         return moveBehaviors.get(pieceType);
     }
 }
