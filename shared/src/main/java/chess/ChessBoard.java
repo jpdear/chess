@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Map;
 import java.util.List;
 
@@ -12,9 +11,10 @@ import java.util.List;
  * signature of the existing methods.
  */
 public class ChessBoard {
-
-    private final ChessPiece[][] board = new ChessPiece[8][8];
-    private final Map<List<Integer>, ChessPiece> standardLayout = Map.ofEntries(
+    private static final int boardSize = 8;
+    private static final int minIndex = 1;
+    private final ChessPiece[][] board = new ChessPiece[boardSize][boardSize];
+    private static final Map<List<Integer>, ChessPiece> standardLayout = Map.ofEntries(
         Map.entry(List.of(8, 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)),
         Map.entry(List.of(8, 2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)),
         Map.entry(List.of(8, 3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP)),
@@ -60,17 +60,25 @@ public class ChessBoard {
 
         ChessBoard that = (ChessBoard) o;
 
-        return Objects.deepEquals(board, that.board) && Objects.equals(standardLayout, that.standardLayout);
+        return Arrays.deepEquals(board, that.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(board), standardLayout);
+        return Arrays.deepHashCode(board);
     }
 
     @Override
     public String toString() {
         return String.format("ChessBoard%s", hashCode());
+    }
+
+    public static int getBoardSize() {
+        return boardSize;
+    }
+
+    public static int getMinIndex() {
+        return minIndex;
     }
 
     /**
@@ -96,13 +104,8 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         int row = position.getRow();
         int col = position.getColumn();
-        ChessPiece piece = board[row-1][col-1];
 
-        if (piece == null) {
-            return null;
-        }
-
-        return new ChessPiece(piece);
+        return board[row-1][col-1];
     }
 
     /**
