@@ -19,11 +19,6 @@ public class ChessPiece {
         this.pieceColor = pieceColor;
     }
 
-    public ChessPiece(ChessPiece other) {
-        this.pieceType = other.pieceType;
-        this.pieceColor = other.pieceColor;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -61,18 +56,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        ChessGame.TeamColor copy = pieceColor;
-
-        return copy;
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        PieceType copy = pieceType;
-
-        return copy;
+        return pieceType;
     }
 
     /**
@@ -83,9 +74,15 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        MovementRules rules = new MovementRules(board, myPosition);
-        MoveBehavior moves = rules.getMoves(board.getPiece(myPosition).getPieceType());
+        MoveBehavior behavior = switch (pieceType) {
+            case BISHOP -> new BishopMoveBehavior(board, myPosition, pieceColor);
+            case KING -> new KingMoveBehavior(board, myPosition, pieceColor);
+            case KNIGHT -> new KnightMoveBehavior(board, myPosition, pieceColor);
+            case QUEEN -> new QueenMoveBehavior(board, myPosition, pieceColor);
+            case ROOK -> new RookMoveBehavior(board, myPosition, pieceColor);
+            case PAWN -> new PawnMoveBehavior(board, myPosition, pieceColor);
+        };
 
-        return moves.getValidMoves();
+        return behavior.getValidMoves();
     }
 }
