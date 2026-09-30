@@ -12,7 +12,7 @@ public class ChessMove {
 
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
-    private ChessPiece.PieceType promotionPiece;
+    private final ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
@@ -22,8 +22,7 @@ public class ChessMove {
     }
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
+        this(startPosition, endPosition, null);
     }
 
     @Override
@@ -55,14 +54,14 @@ public class ChessMove {
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        return new ChessPosition(startPosition);
+        return startPosition;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        return new ChessPosition(endPosition);
+        return endPosition;
     }
 
     /**
@@ -72,8 +71,6 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        ChessPiece.PieceType copy = promotionPiece;
-
-        return copy;
+        return promotionPiece;
     }
 }
