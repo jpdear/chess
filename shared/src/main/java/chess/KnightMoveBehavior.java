@@ -1,24 +1,14 @@
 package chess;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
 public class KnightMoveBehavior extends MoveBehavior {
-    public KnightMoveBehavior (ChessBoard board, ChessPosition position) {
-        super(board, position);
+    public KnightMoveBehavior (ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
+        super(board, position, color);
     }
 
-    public ArrayList<ChessMove> getValidMoves() {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-
-        validMoves.addAll(checkDirection(2, 1, false));
-        validMoves.addAll(checkDirection(2, -1, false));
-        validMoves.addAll(checkDirection(-1, 2, false));
-        validMoves.addAll(checkDirection(1, 2, false));
-        validMoves.addAll(checkDirection(-2, 1, false));
-        validMoves.addAll(checkDirection(-2, -1, false));
-        validMoves.addAll(checkDirection(-1, -2, false));
-        validMoves.addAll(checkDirection(1, -2, false));
-
-        return validMoves;
+    @Override
+    public Collection<ChessMove> getValidMoves() {
+        return stepAll(knightJumps);
     }
 }

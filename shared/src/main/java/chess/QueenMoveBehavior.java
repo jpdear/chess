@@ -1,23 +1,14 @@
 package chess;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
 public class QueenMoveBehavior extends MoveBehavior {
-    public QueenMoveBehavior(ChessBoard board, ChessPosition position) {
-        super(board, position);
+    public QueenMoveBehavior(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
+        super(board, position, color);
     }
 
-    public ArrayList<ChessMove> getValidMoves() {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-
-        validMoves.addAll(checkDirection(1, 0, true));
-        validMoves.addAll(checkDirection(1, 1, true));
-        validMoves.addAll(checkDirection(0, 1, true));
-        validMoves.addAll(checkDirection(-1, -1, true));
-        validMoves.addAll(checkDirection(-1, 0, true));
-        validMoves.addAll(checkDirection(0, -1, true));
-        validMoves.addAll(checkDirection(-1, 1, true));
-        validMoves.addAll(checkDirection(1, -1, true));
-
-        return validMoves;    }
+    @Override
+    public Collection<ChessMove> getValidMoves() {
+        return slideAll(allDirections);
+    }
 }
