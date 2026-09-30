@@ -22,11 +22,6 @@ public class ChessPosition {
         this.col = col;
     }
 
-    public ChessPosition(ChessPosition other) {
-        this.row = other.row;
-        this.col = other.col;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -49,11 +44,14 @@ public class ChessPosition {
     }
 
     public static boolean isValidPosition(int row, int col) {
-        if (row > 8 || row < 1) {
+        int size = ChessBoard.getBoardSize();
+        int min = ChessBoard.getMinIndex();
+
+        if (row > size || row < min) {
             return false;
         }
 
-        if (col > 8 || col < 1) {
+        if (col > size || col < min) {
             return false;
         }
 
@@ -65,9 +63,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        int copy = this.row;
-
-        return copy;
+        return row;
     }
 
     /**
@@ -75,8 +71,6 @@ public class ChessPosition {
      * 1 codes for the left column
      */
     public int getColumn() {
-        int copy = this.col;
-
-        return copy;
+        return col;
     }
 }
