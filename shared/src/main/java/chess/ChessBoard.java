@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -13,7 +11,8 @@ import java.util.List;
 public class ChessBoard {
     private static final int boardSize = 8;
     private static final int minIndex = 1;
-    private final ChessPiece[][] board = new ChessPiece[boardSize][boardSize];
+    private ChessPiece[][] board = new ChessPiece[boardSize][boardSize];
+    private Map<ChessPosition, Collection<ChessMove>> currentValidMoves = new HashMap<>();
     private static final Map<List<Integer>, ChessPiece> standardLayout = Map.ofEntries(
         Map.entry(List.of(8, 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)),
         Map.entry(List.of(8, 2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)),
@@ -50,6 +49,7 @@ public class ChessBoard {
     );
 
     public ChessBoard() {
+        updateValidMoves();
     }
 
     @Override
@@ -94,6 +94,13 @@ public class ChessBoard {
         board[row-1][col-1] = piece;
     }
 
+    public void clearPosition(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        board[row-1][col-1] = null;
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -106,6 +113,32 @@ public class ChessBoard {
         int col = position.getColumn();
 
         return board[row-1][col-1];
+    }
+
+    public void setBoard(ChessPiece[][] newBoard) {
+        if (newBoard.length != board.length) {
+            return;
+        }
+
+        for (int i = 0; i < newBoard.length; i++) {
+            if (newBoard[i].length != board[i].length) {
+                return;
+            }
+        }
+
+        board = newBoard;
+
+        updateValidMoves();
+    }
+
+    public ChessPiece[][] getBoard() {
+        ChessPiece[][] copy = new ChessPiece[boardSize][boardSize];
+
+        for (int i = 0; i < boardSize; i++) {
+            copy[i] = Arrays.copyOf(board[i], boardSize);
+        }
+
+        return copy;
     }
 
     /**
@@ -122,5 +155,53 @@ public class ChessBoard {
             ChessPosition pos = new ChessPosition(coord.get(0), coord.get(1));
             addPiece(pos, entry.getValue());
         }
+    }
+
+    public void updateValidMoves() {
+        currentValidMoves.clear();
+
+        int row = 1;
+        int col = 1;
+
+        for (ChessPiece [] chessPieces : board) {
+            for (ChessPiece piece : chessPieces) {
+                if (piece != null && ChessPosition.isValidPosition(row, col)) {
+                    ChessPosition checkPos = new ChessPosition(row, col);
+                    currentValidMoves.put(checkPos, piece.pieceMoves(this, checkPos));
+                }
+                col++;
+            }
+            col = 1;
+            row++;
+        }
+    }
+
+    public Map<ChessPosition, Collection<ChessMove>> getAllValidMoves() {
+        return currentValidMoves;
+    }
+
+    public ChessPosition getKingPosition(ChessGame.TeamColor color) {
+        int row = 1;
+        int col = 1;
+
+        for (ChessPiece[] pieces : board) {
+            for (ChessPiece piece : pieces) {
+                if (piece == null) {
+                    col++;
+                    continue;
+                }
+
+                if (piece.getTeamColor() == color && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return new ChessPosition(row, col);
+                }
+
+                col++;
+            }
+
+            col = 1;
+            row++;
+        }
+
+        return null;
     }
 }
