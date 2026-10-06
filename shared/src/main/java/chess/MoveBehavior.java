@@ -9,16 +9,16 @@ public abstract class MoveBehavior {
     protected final ChessBoard board;
     protected final ChessPosition position;
     protected final ChessGame.TeamColor color;
-    protected static final List<Direction> orthogonal = List.of(
+    protected static final List<Direction> ORTHOGONAL = List.of(
             new Direction(1, 0), new Direction(-1, 0),
             new Direction(0, 1), new Direction(0, -1)
     );
-    protected static final List<Direction> diagonal = List.of(
+    protected static final List<Direction> DIAGONAL = List.of(
             new Direction(1, 1), new Direction(1, -1),
             new Direction(-1, 1), new Direction(-1, -1)
     );
-    protected static final List<Direction> allDirections = Stream.concat(orthogonal.stream(), diagonal.stream()).toList();
-    protected static final List<Direction> knightJumps = List.of(
+    protected static final List<Direction> ALL_DIRECTIONS = Stream.concat(ORTHOGONAL.stream(), DIAGONAL.stream()).toList();
+    protected static final List<Direction> KNIGHT_JUMPS = List.of(
             new Direction(2, 1), new Direction(2, -1),
             new Direction(-2, 1), new Direction(-2, -1),
             new Direction(1, 2), new Direction(1, -2),

@@ -9,6 +9,6 @@ public class KingMoveBehavior extends MoveBehavior {
 
     @Override
     public Collection<ChessMove> getValidMoves() {
-        return stepAll(allDirections);
+        return stepAll(ALL_DIRECTIONS);
     }
 }

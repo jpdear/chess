@@ -9,6 +9,6 @@ public class RookMoveBehavior extends MoveBehavior {
 
     @Override
     public Collection<ChessMove> getValidMoves() {
-        return slideAll(orthogonal);
+        return slideAll(ORTHOGONAL);
     }
 }

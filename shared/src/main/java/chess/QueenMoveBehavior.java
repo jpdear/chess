@@ -9,6 +9,6 @@ public class QueenMoveBehavior extends MoveBehavior {
 
     @Override
     public Collection<ChessMove> getValidMoves() {
-        return slideAll(allDirections);
+        return slideAll(ALL_DIRECTIONS);
     }
 }

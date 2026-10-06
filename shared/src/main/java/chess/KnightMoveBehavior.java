@@ -9,6 +9,6 @@ public class KnightMoveBehavior extends MoveBehavior {
 
     @Override
     public Collection<ChessMove> getValidMoves() {
-        return stepAll(knightJumps);
+        return stepAll(KNIGHT_JUMPS);
     }
 }

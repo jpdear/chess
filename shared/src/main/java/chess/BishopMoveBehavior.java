@@ -9,6 +9,6 @@ public class BishopMoveBehavior extends MoveBehavior {
 
     @Override
     public Collection<ChessMove> getValidMoves() {
-        return slideAll(diagonal);
+        return slideAll(DIAGONAL);
     }
 }
