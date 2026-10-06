@@ -9,11 +9,11 @@ import java.util.*;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private static final int boardSize = 8;
-    private static final int minIndex = 1;
-    private ChessPiece[][] board = new ChessPiece[boardSize][boardSize];
+    private static final int BOARD_SIZE = 8;
+    private static final int MIN_INDEX = 1;
+    private ChessPiece[][] board = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
     private Map<ChessPosition, Collection<ChessMove>> currentValidMoves = new HashMap<>();
-    private static final Map<List<Integer>, ChessPiece> standardLayout = Map.ofEntries(
+    private static final Map<List<Integer>, ChessPiece> STANDARD_LAYOUT = Map.ofEntries(
         Map.entry(List.of(8, 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)),
         Map.entry(List.of(8, 2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)),
         Map.entry(List.of(8, 3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP)),
@@ -74,11 +74,11 @@ public class ChessBoard {
     }
 
     public static int getBoardSize() {
-        return boardSize;
+        return BOARD_SIZE;
     }
 
     public static int getMinIndex() {
-        return minIndex;
+        return MIN_INDEX;
     }
 
     /**
@@ -132,10 +132,10 @@ public class ChessBoard {
     }
 
     public ChessPiece[][] getBoard() {
-        ChessPiece[][] copy = new ChessPiece[boardSize][boardSize];
+        ChessPiece[][] copy = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
 
-        for (int i = 0; i < boardSize; i++) {
-            copy[i] = Arrays.copyOf(board[i], boardSize);
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            copy[i] = Arrays.copyOf(board[i], BOARD_SIZE);
         }
 
         return copy;
@@ -150,7 +150,7 @@ public class ChessBoard {
             Arrays.fill(chessPieces, null);
         }
 
-        for (Map.Entry<List<Integer>, ChessPiece> entry : standardLayout.entrySet()) {
+        for (Map.Entry<List<Integer>, ChessPiece> entry : STANDARD_LAYOUT.entrySet()) {
             List<Integer> coord = entry.getKey();
             ChessPosition pos = new ChessPosition(coord.get(0), coord.get(1));
             addPiece(pos, entry.getValue());
