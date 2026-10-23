@@ -2,11 +2,13 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import handler.ClearHandler;
 import service.AlreadyTakenException;
 import handler.BadRequestException;
 import handler.RegisterHandler;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.AppService;
 import service.UserService;
 
 import java.util.Map;
@@ -19,7 +21,9 @@ public class Server {
     private final GameDAO gameDAO = new MemoryGameDAO();
 
     private final UserService userService = new UserService(userDAO, authDAO);
+    private final AppService appService = new AppService(userDAO, authDAO, gameDAO);
 
+    private final ClearHandler clearHandler = new ClearHandler(appService);
     private final RegisterHandler registerHandler = new RegisterHandler(userService);
 
     public Server() {
@@ -60,9 +64,7 @@ public class Server {
     }
 
     private void clear(Context ctx) throws DataAccessException {
-        userDAO.clear();
-        authDAO.clear();
-        gameDAO.clear();
+        clearHandler.handle("");
 
         ctx.contentType("application/json");
         ctx.status(200);
