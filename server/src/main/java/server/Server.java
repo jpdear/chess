@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataAccess.*;
 import handler.ClearHandler;
+import handler.LoginHandler;
 import service.AlreadyTakenException;
 import handler.BadRequestException;
 import handler.RegisterHandler;
@@ -25,11 +26,13 @@ public class Server {
 
     private final ClearHandler clearHandler = new ClearHandler(appService);
     private final RegisterHandler registerHandler = new RegisterHandler(userService);
+    private final LoginHandler loginHandler = new LoginHandler(userService);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clear)
                 .post("/user", this::register)
+                .post("/session", this::login)
                 .exception(BadRequestException.class, (e, ctx) -> {
                     addMessageToContext(ctx, 400, e.getMessage());
                 })
@@ -38,6 +41,9 @@ public class Server {
                 })
                 .exception(DataAccessException.class, (e, ctx) -> {
                     addMessageToContext(ctx, 500, e.getMessage());
+                })
+                .exception(UserNotFoundException.class, (e, ctx) -> {
+                    addMessageToContext(ctx, 401, e.getMessage());
                 })
                 .exception(Exception.class, (e, ctx) -> {
                     addMessageToContext(ctx, 500, String.format("Error: %s", e.getMessage()));
@@ -51,6 +57,12 @@ public class Server {
         ctx.contentType("application/json");
         ctx.result(json);
         ctx.status(status);
+    }
+
+    private void addSuccessToContext(Context ctx, String result) {
+        ctx.contentType("application/json");
+        ctx.result(result);
+        ctx.status(200);
     }
 
     public int run(int desiredPort) {
@@ -74,8 +86,13 @@ public class Server {
         String body = ctx.body();
         String result = registerHandler.handle(body);
 
-        ctx.contentType("application/json");
-        ctx.result(result);
-        ctx.status(200);
+        addSuccessToContext(ctx, result);
+    }
+
+    private void login(Context ctx) throws UserNotFoundException, BadRequestException, DataAccessException {
+        String body = ctx.body();
+        String result = loginHandler.handle(body);
+
+        addSuccessToContext(ctx, result);
     }
 }

@@ -3,6 +3,8 @@ package service;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
+import dataAccess.UserNotFoundException;
+import handler.BadRequestException;
 import model.AuthData;
 import model.UserData;
 
@@ -28,5 +30,22 @@ public class UserService {
         AuthData newAuth = authDAO.createAuth(username);
 
         return new RegisterResult(username, newAuth.authToken());
+    }
+
+    public LoginResult login(LoginRequest request) throws DataAccessException, UserNotFoundException {
+        String username = request.username();
+        UserData user = userDAO.getUser(username);
+
+        if (user == null) {
+            throw new UserNotFoundException("Error: unauthorized");
+        }
+
+        if (!user.password().equals(request.password())) {
+            throw new UserNotFoundException("Error: unauthorized");
+        }
+
+        AuthData auth = authDAO.createAuth(username);
+
+        return new LoginResult(username, auth.authToken());
     }
 }
