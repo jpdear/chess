@@ -21,12 +21,13 @@ public class Server {
 
     private final UserService userService = new UserService(userDAO, authDAO);
     private final AppService appService = new AppService(userDAO, authDAO, gameDAO);
-    private final GameService gameService = new GameService(userDAO, authDAO, gameDAO);
+    private final GameService gameService = new GameService(authDAO, gameDAO);
 
     private final ClearHandler clearHandler = new ClearHandler(appService);
     private final RegisterHandler registerHandler = new RegisterHandler(userService);
     private final LoginHandler loginHandler = new LoginHandler(userService);
     private final LogoutHandler logoutHandler = new LogoutHandler(userService);
+    private final ListGamesHandler listGamesHandler = new ListGamesHandler(gameService);
     private final CreateGameHandler createGameHandler = new CreateGameHandler(gameService);
 
     public Server() {
@@ -36,6 +37,7 @@ public class Server {
                 .post("/session", this::login)
                 .delete("/session", this::logout)
                 .post("/game", this::createGame)
+                .get("/game", this::listGames)
                 .exception(BadRequestException.class, (e, ctx) -> addMessageToContext(ctx, 400, e.getMessage()))
                 .exception(AlreadyTakenException.class, (e, ctx) -> addMessageToContext(ctx, 403, e.getMessage()))
                 .exception(DataAccessException.class, (e, ctx) -> addMessageToContext(ctx, 500, e.getMessage()))
@@ -88,6 +90,11 @@ public class Server {
     private void logout(Context ctx) throws UserNotFoundException, BadRequestException, DataAccessException {
         logoutHandler.handle(ctx);
         addSuccessToContext(ctx, new Gson().toJson(Map.of()));
+    }
+
+    private void listGames(Context ctx) throws UserNotFoundException, BadRequestException, AlreadyTakenException, DataAccessException {
+        String result = listGamesHandler.handle(ctx);
+        addSuccessToContext(ctx, result);
     }
 
     private void createGame(Context ctx) throws UserNotFoundException, BadRequestException, AlreadyTakenException, DataAccessException {

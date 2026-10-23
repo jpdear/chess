@@ -3,10 +3,7 @@ package dataAccess;
 import chess.ChessGame;
 import model.GameData;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class MemoryGameDAO implements GameDAO {
     private final HashMap<Integer, GameData> games = new HashMap<>();
@@ -41,12 +38,12 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        return null;
+        return games.get(gameID);
     }
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+        return new ArrayList<>(games.values());
     }
 
     @Override
