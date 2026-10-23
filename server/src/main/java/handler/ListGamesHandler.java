@@ -2,12 +2,8 @@ package handler;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import dataAccess.UserNotFoundException;
 import io.javalin.http.Context;
-import model.GameData;
 import service.*;
-
-import java.util.ArrayList;
 
 public class ListGamesHandler implements ServerHandler {
     private final GameService gameService;

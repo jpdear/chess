@@ -1,7 +1,6 @@
 package handler;
 
 import dataAccess.DataAccessException;
-import dataAccess.UserNotFoundException;
 import io.javalin.http.Context;
 import service.*;
 

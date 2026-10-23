@@ -3,7 +3,6 @@ package handler;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
-import dataAccess.UserNotFoundException;
 import io.javalin.http.Context;
 import service.*;
 

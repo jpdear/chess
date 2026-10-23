@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import dataAccess.*;
 import handler.*;
 import service.AlreadyTakenException;
+import service.BadRequestException;
+import service.UserNotFoundException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.AppService;
@@ -29,6 +31,7 @@ public class Server {
     private final LogoutHandler logoutHandler = new LogoutHandler(userService);
     private final ListGamesHandler listGamesHandler = new ListGamesHandler(gameService);
     private final CreateGameHandler createGameHandler = new CreateGameHandler(gameService);
+    private final JoinGameHandler joinGameHandler = new JoinGameHandler(gameService);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
@@ -38,6 +41,7 @@ public class Server {
                 .delete("/session", this::logout)
                 .post("/game", this::createGame)
                 .get("/game", this::listGames)
+                .put("/game", this::joinGame)
                 .exception(BadRequestException.class, (e, ctx) -> addMessageToContext(ctx, 400, e.getMessage()))
                 .exception(AlreadyTakenException.class, (e, ctx) -> addMessageToContext(ctx, 403, e.getMessage()))
                 .exception(DataAccessException.class, (e, ctx) -> addMessageToContext(ctx, 500, e.getMessage()))
@@ -100,5 +104,10 @@ public class Server {
     private void createGame(Context ctx) throws UserNotFoundException, BadRequestException, AlreadyTakenException, DataAccessException {
         String result = createGameHandler.handle(ctx);
         addSuccessToContext(ctx, result);
+    }
+
+    private void joinGame(Context ctx) throws UserNotFoundException, BadRequestException, AlreadyTakenException, DataAccessException {
+        joinGameHandler.handle(ctx);
+        addSuccessToContext(ctx, new Gson().toJson(Map.of()));
     }
 }

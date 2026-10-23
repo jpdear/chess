@@ -3,7 +3,6 @@ package service;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
-import dataAccess.UserNotFoundException;
 import model.AuthData;
 import model.UserData;
 
@@ -49,6 +48,12 @@ public class UserService {
     }
 
     public void logout(LogoutRequest request) throws DataAccessException, UserNotFoundException {
+        AuthData auth = authDAO.getAuth(request.authToken());
+
+        if (auth == null) {
+            throw new UserNotFoundException("Error: unauthorized");
+        }
+
         authDAO.deleteAuth(request.authToken());
     }
 }

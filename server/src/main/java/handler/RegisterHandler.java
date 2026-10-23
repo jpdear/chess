@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import service.AlreadyTakenException;
 import dataAccess.DataAccessException;
 import io.javalin.http.Context;
+import service.BadRequestException;
 import service.RegisterRequest;
 import service.RegisterResult;
 import service.UserService;
