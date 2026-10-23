@@ -29,7 +29,11 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String token) {
+    public void deleteAuth(String token) throws UserNotFoundException {
+        if (!auths.containsKey(token)) {
+            throw new UserNotFoundException("Error: unauthorized");
+        }
+
         auths.remove(token);
     }
 }

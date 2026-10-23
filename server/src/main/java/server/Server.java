@@ -2,11 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
-import handler.ClearHandler;
-import handler.LoginHandler;
+import handler.*;
 import service.AlreadyTakenException;
-import handler.BadRequestException;
-import handler.RegisterHandler;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.AppService;
@@ -27,27 +24,19 @@ public class Server {
     private final ClearHandler clearHandler = new ClearHandler(appService);
     private final RegisterHandler registerHandler = new RegisterHandler(userService);
     private final LoginHandler loginHandler = new LoginHandler(userService);
+    private final LogoutHandler logoutHandler = new LogoutHandler(userService);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clear)
                 .post("/user", this::register)
                 .post("/session", this::login)
-                .exception(BadRequestException.class, (e, ctx) -> {
-                    addMessageToContext(ctx, 400, e.getMessage());
-                })
-                .exception(AlreadyTakenException.class, (e, ctx) -> {
-                    addMessageToContext(ctx, 403, e.getMessage());
-                })
-                .exception(DataAccessException.class, (e, ctx) -> {
-                    addMessageToContext(ctx, 500, e.getMessage());
-                })
-                .exception(UserNotFoundException.class, (e, ctx) -> {
-                    addMessageToContext(ctx, 401, e.getMessage());
-                })
-                .exception(Exception.class, (e, ctx) -> {
-                    addMessageToContext(ctx, 500, String.format("Error: %s", e.getMessage()));
-                });
+                .delete("/session", this::logout)
+                .exception(BadRequestException.class, (e, ctx) -> addMessageToContext(ctx, 400, e.getMessage()))
+                .exception(AlreadyTakenException.class, (e, ctx) -> addMessageToContext(ctx, 403, e.getMessage()))
+                .exception(DataAccessException.class, (e, ctx) -> addMessageToContext(ctx, 500, e.getMessage()))
+                .exception(UserNotFoundException.class, (e, ctx) -> addMessageToContext(ctx, 401, e.getMessage()))
+                .exception(Exception.class, (e, ctx) -> addMessageToContext(ctx, 500, String.format("Error: %s", e.getMessage())));
     }
 
     private void addMessageToContext(Context ctx, int status, String message) {
@@ -77,9 +66,7 @@ public class Server {
 
     private void clear(Context ctx) throws DataAccessException {
         clearHandler.handle("");
-
-        ctx.contentType("application/json");
-        ctx.status(200);
+        addSuccessToContext(ctx, new Gson().toJson(""));
     }
 
     private void register(Context ctx) throws BadRequestException, AlreadyTakenException, DataAccessException {
@@ -94,5 +81,13 @@ public class Server {
         String result = loginHandler.handle(body);
 
         addSuccessToContext(ctx, result);
+    }
+
+    private void logout(Context ctx) throws UserNotFoundException, BadRequestException, DataAccessException {
+        String header = ctx.header("authorization");
+        String body = new Gson().toJson(Map.of("authToken", header));
+
+        logoutHandler.handle(body);
+        addSuccessToContext(ctx, new Gson().toJson(""));
     }
 }

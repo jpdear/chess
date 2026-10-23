@@ -48,4 +48,8 @@ public class UserService {
 
         return new LoginResult(username, auth.authToken());
     }
+
+    public void logout(LogoutRequest request) throws DataAccessException, UserNotFoundException {
+        authDAO.deleteAuth(request.authToken());
+    }
 }
