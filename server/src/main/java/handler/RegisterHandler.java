@@ -2,14 +2,21 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import service.AlreadyTakenException;
+import dataAccess.DataAccessException;
 import service.RegisterRequest;
 import service.RegisterResult;
-import service.ServiceResult;
 import service.UserService;
 
 public class RegisterHandler implements ServerHandler {
+    private final UserService userService;
+
+    public RegisterHandler(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
-    public ServiceResult handle(String requestData) throws BadRequestException {
+    public String handle(String requestData) throws BadRequestException, AlreadyTakenException, DataAccessException {
         Gson gson = new Gson();
         RegisterRequest request;
 
@@ -31,8 +38,8 @@ public class RegisterHandler implements ServerHandler {
             throw new BadRequestException("Error: bad request");
         }
 
-        RegisterResult result = new UserService().register(request);
+        RegisterResult result = userService.register(request);
 
-        return null;
+        return gson.toJson(result);
     }
 }
