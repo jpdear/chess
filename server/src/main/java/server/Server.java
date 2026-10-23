@@ -1,10 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.*;
 import service.AlreadyTakenException;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
 import handler.BadRequestException;
 import handler.RegisterHandler;
 import io.javalin.*;
@@ -16,15 +14,17 @@ import java.util.Map;
 public class Server {
     private final Javalin javalin;
 
-    private final MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    private final MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    private final UserDAO userDAO = new MemoryUserDAO();
+    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final GameDAO gameDAO = new MemoryGameDAO();
 
-    private final UserService userService = new UserService(memoryUserDAO, memoryAuthDAO);
+    private final UserService userService = new UserService(userDAO, authDAO);
 
     private final RegisterHandler registerHandler = new RegisterHandler(userService);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
+                .delete("/db", this::clear)
                 .post("/user", this::register)
                 .exception(BadRequestException.class, (e, ctx) -> {
                     addMessageToContext(ctx, 400, e.getMessage());
@@ -57,6 +57,15 @@ public class Server {
 
     public void stop() {
         javalin.stop();
+    }
+
+    private void clear(Context ctx) throws DataAccessException {
+        userDAO.clear();
+        authDAO.clear();
+        gameDAO.clear();
+
+        ctx.contentType("application/json");
+        ctx.status(200);
     }
 
     private void register(Context ctx) throws BadRequestException, AlreadyTakenException, DataAccessException {
