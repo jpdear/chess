@@ -7,6 +7,7 @@ import service.AlreadyTakenException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.AppService;
+import service.GameService;
 import service.UserService;
 
 import java.util.Map;
@@ -20,11 +21,13 @@ public class Server {
 
     private final UserService userService = new UserService(userDAO, authDAO);
     private final AppService appService = new AppService(userDAO, authDAO, gameDAO);
+    private final GameService gameService = new GameService(userDAO, authDAO, gameDAO);
 
     private final ClearHandler clearHandler = new ClearHandler(appService);
     private final RegisterHandler registerHandler = new RegisterHandler(userService);
     private final LoginHandler loginHandler = new LoginHandler(userService);
     private final LogoutHandler logoutHandler = new LogoutHandler(userService);
+    private final CreateGameHandler createGameHandler = new CreateGameHandler(gameService);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
@@ -32,6 +35,7 @@ public class Server {
                 .post("/user", this::register)
                 .post("/session", this::login)
                 .delete("/session", this::logout)
+                .post("/game", this::createGame)
                 .exception(BadRequestException.class, (e, ctx) -> addMessageToContext(ctx, 400, e.getMessage()))
                 .exception(AlreadyTakenException.class, (e, ctx) -> addMessageToContext(ctx, 403, e.getMessage()))
                 .exception(DataAccessException.class, (e, ctx) -> addMessageToContext(ctx, 500, e.getMessage()))
@@ -84,5 +88,10 @@ public class Server {
     private void logout(Context ctx) throws UserNotFoundException, BadRequestException, DataAccessException {
         logoutHandler.handle(ctx);
         addSuccessToContext(ctx, new Gson().toJson(Map.of()));
+    }
+
+    private void createGame(Context ctx) throws UserNotFoundException, BadRequestException, AlreadyTakenException, DataAccessException {
+        String result = createGameHandler.handle(ctx);
+        addSuccessToContext(ctx, result);
     }
 }

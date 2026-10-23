@@ -4,7 +4,6 @@ import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
 import dataAccess.UserNotFoundException;
-import handler.BadRequestException;
 import model.AuthData;
 import model.UserData;
 

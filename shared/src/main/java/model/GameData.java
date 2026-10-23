@@ -8,4 +8,8 @@ public record GameData(
         String blackUsername,
         String gameName,
         ChessGame game
-) {}
+) {
+    public GameData(int gameID, String gameName, ChessGame game) {
+        this(gameID, null, null, gameName, game);
+    }
+}
