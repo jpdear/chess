@@ -1,7 +1,8 @@
 package handler;
 
-import service.ServiceResult;
+import service.AlreadyTakenException;
+import dataAccess.DataAccessException;
 
 public interface ServerHandler {
-    public ServiceResult handle(String requestData) throws BadRequestException;
+    public String handle(String requestData) throws BadRequestException, AlreadyTakenException, DataAccessException;
 }
