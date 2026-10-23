@@ -66,7 +66,7 @@ public class Server {
 
     private void clear(Context ctx) throws DataAccessException {
         clearHandler.handle("");
-        addSuccessToContext(ctx, new Gson().toJson(""));
+        addSuccessToContext(ctx, new Gson().toJson(Map.of()));
     }
 
     private void register(Context ctx) throws BadRequestException, AlreadyTakenException, DataAccessException {
@@ -85,9 +85,9 @@ public class Server {
 
     private void logout(Context ctx) throws UserNotFoundException, BadRequestException, DataAccessException {
         String header = ctx.header("authorization");
-        String body = new Gson().toJson(Map.of("authToken", header));
+        String body = new Gson().toJson(Map.of("authToken", header != null ? header : ""));
 
         logoutHandler.handle(body);
-        addSuccessToContext(ctx, new Gson().toJson(""));
+        addSuccessToContext(ctx, new Gson().toJson(Map.of()));
     }
 }
