@@ -1,3 +1,3 @@
-package service;
+package service.request;
 
 public record LoginRequest(String username, String password) {}

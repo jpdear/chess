@@ -1,9 +1,15 @@
 package service;
 
 import chess.ChessGame;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
 import model.GameData;
+import service.request.CreateGameRequest;
+import service.result.CreateGameResult;
+import service.result.GameListEntry;
+import service.request.JoinGameRequest;
+import service.request.ListGamesRequest;
+import service.result.ListGamesResult;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

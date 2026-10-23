@@ -3,11 +3,11 @@ package handler;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import service.AlreadyTakenException;
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.BadRequestException;
-import service.RegisterRequest;
-import service.RegisterResult;
+import service.request.RegisterRequest;
+import service.result.RegisterResult;
 import service.UserService;
 
 public class RegisterHandler implements ServerHandler {

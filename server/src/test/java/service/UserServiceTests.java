@@ -1,9 +1,13 @@
 package service;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
+import service.request.LoginRequest;
+import service.request.LogoutRequest;
+import service.request.RegisterRequest;
+import service.result.RegisterResult;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

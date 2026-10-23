@@ -1,6 +1,6 @@
 package handler;
 
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.AppService;
 

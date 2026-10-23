@@ -3,13 +3,13 @@ package handler;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.UserNotFoundException;
 import service.BadRequestException;
 import service.AlreadyTakenException;
 import service.GameService;
-import service.JoinGameRequest;
+import service.request.JoinGameRequest;
 
 public class JoinGameHandler implements ServerHandler {
     private record JoinGameBody(String playerColor, Integer gameID) {

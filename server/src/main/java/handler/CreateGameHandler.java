@@ -2,9 +2,11 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.*;
+import service.request.CreateGameRequest;
+import service.result.CreateGameResult;
 
 public class CreateGameHandler implements ServerHandler {
     private final GameService gameService;

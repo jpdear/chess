@@ -1,9 +1,15 @@
 package service;
 
 import chess.ChessGame;
-import dataAccess.*;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
+import service.request.CreateGameRequest;
+import service.result.CreateGameResult;
+import service.result.GameListEntry;
+import service.request.JoinGameRequest;
+import service.request.ListGamesRequest;
+import service.result.ListGamesResult;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package service;
+package service.result;
 
 import java.util.Collection;
 

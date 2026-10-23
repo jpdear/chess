@@ -1,8 +1,9 @@
 package handler;
 
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.*;
+import service.request.LogoutRequest;
 
 public class LogoutHandler implements ServerHandler {
     private final UserService userService;

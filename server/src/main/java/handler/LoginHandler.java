@@ -2,9 +2,11 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.*;
+import service.request.LoginRequest;
+import service.result.LoginResult;
 
 public class LoginHandler implements ServerHandler {
     private final UserService userService;

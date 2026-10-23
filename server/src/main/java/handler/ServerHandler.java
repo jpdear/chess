@@ -1,7 +1,7 @@
 package handler;
 
 import service.AlreadyTakenException;
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.UserNotFoundException;
 import service.BadRequestException;
