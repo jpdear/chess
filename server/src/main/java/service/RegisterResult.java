@@ -40,7 +40,7 @@ public class RegisterResult extends ServiceResult {
     @Override
     public String toString() {
         return String.format(
-                "{'username: %s', 'password': %s, 'email': %s%s}",
+                "{'username': '%s', 'password': '%s', 'email': '%s'%s}",
                 username,
                 password,
                 email,
