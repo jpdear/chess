@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
 import dataAccess.UserNotFoundException;
+import io.javalin.http.Context;
 import service.*;
 
 public class LoginHandler implements ServerHandler {
@@ -14,12 +15,12 @@ public class LoginHandler implements ServerHandler {
     }
 
     @Override
-    public String handle(String requestData) throws BadRequestException, DataAccessException, UserNotFoundException {
+    public String handle(Context ctx) throws BadRequestException, DataAccessException, UserNotFoundException {
         Gson gson = new Gson();
         LoginRequest request;
 
         try {
-            request = gson.fromJson(requestData, LoginRequest.class);
+            request = gson.fromJson(ctx.body(), LoginRequest.class);
         } catch (JsonSyntaxException ex) {
             throw new BadRequestException("Error: bad request", ex);
         }

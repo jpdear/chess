@@ -1,6 +1,7 @@
 package handler;
 
 import dataAccess.DataAccessException;
+import io.javalin.http.Context;
 import service.AppService;
 
 public class ClearHandler implements ServerHandler {
@@ -11,7 +12,7 @@ public class ClearHandler implements ServerHandler {
     }
 
     @Override
-    public String handle(String requestData) throws DataAccessException {
+    public String handle(Context ctx) throws DataAccessException {
         appService.clear();
 
         return "";

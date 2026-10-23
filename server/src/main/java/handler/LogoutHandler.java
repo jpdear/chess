@@ -1,9 +1,8 @@
 package handler;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
 import dataAccess.UserNotFoundException;
+import io.javalin.http.Context;
 import service.*;
 
 public class LogoutHandler implements ServerHandler {
@@ -14,31 +13,14 @@ public class LogoutHandler implements ServerHandler {
     }
 
     @Override
-    public String handle(String requestData) throws BadRequestException, DataAccessException, UserNotFoundException {
-        if (requestData.isBlank()) {
+    public String handle(Context ctx) throws BadRequestException, DataAccessException, UserNotFoundException {
+        String authToken = ctx.header("authorization");
+
+        if (authToken == null || authToken.isBlank()) {
             throw new UserNotFoundException("Error: unauthorized");
         }
 
-        Gson gson = new Gson();
-        LogoutRequest request;
-
-        try {
-            request = gson.fromJson(requestData, LogoutRequest.class);
-        } catch (JsonSyntaxException ex) {
-            throw new BadRequestException("Error: bad request", ex);
-        }
-
-        if (request == null) {
-            throw new BadRequestException("Error: bad request");
-        }
-
-        if (request.authToken() == null) {
-            throw new BadRequestException("Error: bad request");
-        }
-
-        if (request.authToken().isBlank()) {
-            throw new BadRequestException("Error: bad request");
-        }
+        LogoutRequest request = new LogoutRequest(authToken);
 
         userService.logout(request);
 
