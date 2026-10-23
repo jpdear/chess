@@ -5,6 +5,7 @@ import handler.BadRequestException;
 import handler.RegisterHandler;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.ServiceResult;
 
 import java.util.Map;
 
@@ -42,6 +43,6 @@ public class Server {
 
         String body = ctx.body();
 
-        handler.handle(body);
+        ServiceResult result = handler.handle(body);
     }
 }

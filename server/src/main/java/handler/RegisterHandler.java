@@ -3,7 +3,9 @@ package handler;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import service.RegisterRequest;
+import service.RegisterResult;
 import service.ServiceResult;
+import service.UserService;
 
 public class RegisterHandler implements ServerHandler {
     @Override
@@ -28,6 +30,8 @@ public class RegisterHandler implements ServerHandler {
         if (request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
             throw new BadRequestException("Error: bad request");
         }
+
+        RegisterResult result = new UserService().register(request);
 
         return null;
     }
