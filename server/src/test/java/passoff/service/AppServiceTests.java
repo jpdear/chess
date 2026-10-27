@@ -1,4 +1,4 @@
-package service;
+package passoff.service;
 
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
