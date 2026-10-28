@@ -21,9 +21,53 @@ public class DatabaseManager {
      */
     static public void createDatabase() throws DataAccessException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
-        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
-             var preparedStatement = conn.prepareStatement(statement)) {
+        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword)) {
+            var preparedStatement = conn.prepareStatement(statement);
+
             preparedStatement.executeUpdate();
+            conn.setCatalog(databaseName);
+            conn.setAutoCommit(false);
+
+            String createAuthTable = """
+                    CREATE TABLE IF NOT EXISTS auth (
+                        id INT NOT NULL AUTO_INCREMENT,
+                        authToken VARCHAR(255) NOT NULL,
+                        username VARCHAR(255) NOT NULL,
+                        PRIMARY KEY (id)
+                    )""";
+            String createUserTable = """
+                    CREATE TABLE IF NOT EXISTS user (
+                        id INT NOT NULL AUTO_INCREMENT,
+                        username VARCHAR(255) NOT NULL,
+                        password VARCHAR(255) NOT NULL,
+                        email VARCHAR(255) NOT NULL,
+                        PRIMARY KEY (id)
+                    )""";
+            String createGameTable = """
+                    CREATE TABLE IF NOT EXISTS game (
+                        id INT NOT NULL AUTO_INCREMENT,
+                        whiteUsername VARCHAR(255) NULL,
+                        blackUsername VARCHAR(255) NULL,
+                        gameName VARCHAR(255) NOT NULL,
+                        game LONGTEXT NOT NULL,
+                        PRIMARY KEY (id)
+                    )""";
+
+            PreparedStatement authTableStatement = conn.prepareStatement(createAuthTable);
+            PreparedStatement userTableStatement = conn.prepareStatement(createUserTable);
+            PreparedStatement gameTableStatement = conn.prepareStatement(createGameTable);
+
+            try {
+                authTableStatement.executeUpdate();
+                userTableStatement.executeUpdate();
+                gameTableStatement.executeUpdate();
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         } catch (SQLException ex) {
             throw new DataAccessException("failed to create database", ex);
         }
