@@ -16,6 +16,11 @@ public class DatabaseManager {
         loadPropertiesFromResources();
     }
 
+    static public void switchDatabases(Properties props) throws DataAccessException {
+        loadProperties(props);
+        createDatabase();
+    }
+
     /**
      * Creates the database if it does not already exist.
      */
@@ -85,7 +90,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    public static Connection getConnection() throws DataAccessException {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
