@@ -5,6 +5,8 @@ import dataaccess.DatabaseManager;
 import dataaccess.SQLAuthDAO;
 import dataaccess.SQLUserDAO;
 import model.AuthData;
+import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.*;
 
@@ -116,6 +118,17 @@ public class SQLDataAccessTests {
 
         Assertions.assertEquals("username", auth.username());
         Assertions.assertNotNull(auth.authToken());
+    }
+
+    @Test
+    public void createUserSuccess() throws DataAccessException {
+        String hash = BCrypt.hashpw("pass1", BCrypt.gensalt());
+        UserData user = userDAO.createUser("user1", hash, "email1@email.com");
+
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals("user1", user.username());
+        Assertions.assertEquals(hash, user.password());
+        Assertions.assertEquals("email1@email.com", user.email());
     }
 
     @Test
