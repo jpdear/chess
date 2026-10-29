@@ -31,7 +31,7 @@ public class SQLDataAccessTests {
     }
 
     @BeforeEach
-    public void clearDB() throws DataAccessException {
+    public void resetDB() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement clearAuth = conn.prepareStatement("TRUNCATE TABLE auth");
             PreparedStatement clearUser = conn.prepareStatement("TRUNCATE TABLE user");
@@ -66,6 +66,26 @@ public class SQLDataAccessTests {
         Assertions.assertEquals(3, countRows("auth"));
         authDAO.clear();
         Assertions.assertEquals(0, countRows("auth"));
+    }
+
+    @Test
+    public void clearUserSuccess() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement init = conn.prepareStatement("""
+            INSERT INTO user (username, password, email)
+            VALUES
+                ("user1", "pass1", "email1@email.com"),
+                ("user2", "pass2", "email2@email.com"),
+                ("user3", "pass3", "email3@email.com")
+            """);
+            init.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+
+        Assertions.assertEquals(3, countRows("user"));
+        userDAO.clear();
+        Assertions.assertEquals(0, countRows("user"));
     }
 
     @Test
