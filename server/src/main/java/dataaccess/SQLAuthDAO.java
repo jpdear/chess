@@ -47,7 +47,7 @@ public class SQLAuthDAO implements AuthDAO {
 
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(
-                    "INSERT INTO auth VALUES (?, ?)"
+                    "INSERT INTO auth (authToken, username) VALUES (?, ?)"
             );
             preparedStatement.setString(1, authToken);
             preparedStatement.setString(2, username);
