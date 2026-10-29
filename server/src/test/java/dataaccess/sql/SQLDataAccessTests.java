@@ -3,7 +3,9 @@ package dataaccess.sql;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.SQLAuthDAO;
+import dataaccess.SQLUserDAO;
 import model.AuthData;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
@@ -12,8 +14,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class AuthDAOTests {
-    private  SQLAuthDAO authDAO;
+public class SQLDataAccessTests {
+    private SQLAuthDAO authDAO;
+    private SQLUserDAO userDAO;
 
     @BeforeAll
     public static void initDB() throws DataAccessException {
@@ -42,10 +45,11 @@ public class AuthDAOTests {
         }
 
         authDAO = new SQLAuthDAO();
+        userDAO = new SQLUserDAO();
     }
 
     @Test
-    public void clearSuccess() throws DataAccessException {
+    public void clearAuthSuccess() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement init = conn.prepareStatement("""
             INSERT INTO auth (authToken, username)
