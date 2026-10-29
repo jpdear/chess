@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.request.LoginRequest;
 import service.result.LoginResult;
 import service.request.LogoutRequest;
@@ -28,7 +29,9 @@ public class UserService {
             throw new AlreadyTakenException("Error: already taken");
         }
 
-        userDAO.createUser(username, request.password(), request.email());
+        String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt());
+
+        userDAO.createUser(username, hash, request.email());
 
         AuthData newAuth = authDAO.createAuth(username);
 
@@ -43,7 +46,9 @@ public class UserService {
             throw new UserNotFoundException("Error: unauthorized");
         }
 
-        if (!user.password().equals(request.password())) {
+        String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt());
+
+        if (!BCrypt.checkpw(user.password(), hash)) {
             throw new UserNotFoundException("Error: unauthorized");
         }
 
