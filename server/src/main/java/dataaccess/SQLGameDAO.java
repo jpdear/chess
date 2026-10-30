@@ -1,0 +1,88 @@
+package dataaccess;
+
+import chess.ChessGame;
+import com.google.gson.Gson;
+import model.GameData;
+
+import java.sql.*;
+import java.util.Collection;
+import java.util.List;
+
+public class SQLGameDAO implements GameDAO {
+    private final Gson serializer = new Gson();
+
+    @Override
+    public void clear() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE game");
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+    }
+
+    @Override
+    public GameData createGame(String name) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement("""
+            INSERT INTO game (gameName, game)
+            VALUES (?, ?)
+            """, Statement.RETURN_GENERATED_KEYS);
+
+            ChessGame game = new ChessGame();
+            String gameJson = serializer.toJson(game);
+
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, gameJson);
+            preparedStatement.executeUpdate();
+
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                int gameID = resultSet.getInt(1);
+
+                return new GameData(gameID, name, game);
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+
+        throw new DataAccessException("Error: failed to create game");
+    }
+
+    @Override
+    public GameData getGame(int gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement("""
+            SELECT whiteUsername, blackUsername, gameName, game
+            FROM game where id=?
+            """);
+            preparedStatement.setString(1, String.valueOf(gameID));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String whiteUsername = resultSet.getString(1);
+                String blackUsername = resultSet.getString(2);
+                String gameName = resultSet.getString(3);
+                ChessGame game = serializer.fromJson(resultSet.getString("game"), ChessGame.class);
+
+                return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Collection<GameData> listGames() throws DataAccessException {
+        return List.of();
+    }
+
+    @Override
+    public void updateGame(GameData game) throws DataAccessException {
+
+    }
+}
