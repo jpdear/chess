@@ -12,7 +12,7 @@ public class ChessBoard {
     private static final int BOARD_SIZE = 8;
     private static final int MIN_INDEX = 1;
     private ChessPiece[][] board = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
-    private Map<ChessPosition, Collection<ChessMove>> currentValidMoves = new HashMap<>();
+    private transient Map<ChessPosition, Collection<ChessMove>> currentValidMoves = new HashMap<>();
     private static final Map<List<Integer>, ChessPiece> STANDARD_LAYOUT = Map.ofEntries(
         Map.entry(List.of(8, 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)),
         Map.entry(List.of(8, 2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)),
