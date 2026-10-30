@@ -97,9 +97,11 @@ public class SQLDataAccessTests {
             INSERT INTO auth (authToken, username)
             VALUES ("123456789", "user")
             """);
+
             init.executeUpdate();
 
             AuthData auth = authDAO.getAuth("123456789");
+
             Assertions.assertEquals("user", auth.username());
         } catch (SQLException ex) {
             throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
@@ -109,7 +111,35 @@ public class SQLDataAccessTests {
     @Test
     public void getAuthFail() throws DataAccessException {
         AuthData auth = authDAO.getAuth("notrealtoken");
+
         Assertions.assertNull(auth);
+    }
+
+    @Test
+    public void getUserSuccess() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement init = conn.prepareStatement("""
+            INSERT INTO user (username, password, email)
+            VALUES ("user1", "pass1", "email1@email.com")
+            """);
+
+            init.executeUpdate();
+
+            UserData user = userDAO.getUser("user1");
+
+            Assertions.assertNotNull(user);
+            Assertions.assertEquals("pass1", user.password());
+            Assertions.assertEquals("email1@email.com", user.email());
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+    }
+
+    @Test
+    public void getUserFail() throws DataAccessException {
+        UserData user = userDAO.getUser("norealuser");
+
+        Assertions.assertNull(user);
     }
 
     @Test
