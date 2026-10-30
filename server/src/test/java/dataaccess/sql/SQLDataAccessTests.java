@@ -1,10 +1,10 @@
 package dataaccess.sql;
 
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
-import dataaccess.SQLAuthDAO;
-import dataaccess.SQLUserDAO;
+import chess.ChessGame;
+import com.google.gson.Gson;
+import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 import org.junit.jupiter.api.Assertions;
@@ -19,6 +19,7 @@ import java.util.Properties;
 public class SQLDataAccessTests {
     private SQLAuthDAO authDAO;
     private SQLUserDAO userDAO;
+    private SQLGameDAO gameDAO;
 
     @BeforeAll
     public static void initDB() throws DataAccessException {
@@ -48,6 +49,7 @@ public class SQLDataAccessTests {
 
         authDAO = new SQLAuthDAO();
         userDAO = new SQLUserDAO();
+        gameDAO = new SQLGameDAO();
     }
 
     @Test
@@ -88,6 +90,26 @@ public class SQLDataAccessTests {
         Assertions.assertEquals(3, countRows("user"));
         userDAO.clear();
         Assertions.assertEquals(0, countRows("user"));
+    }
+
+    @Test
+    public void clearGameSuccess() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement init = conn.prepareStatement("""
+            INSERT INTO game (whiteUsername, blackUsername, gameName, game)
+            VALUES
+                ("whiteuser1", "blackuser1", "gamename1", "game1"),
+                ("whiteuser2", "blackuser2", "gamename2", "game2"),
+                ("whiteuser3", "blackuser3", "gamename3", "game3")
+            """);
+            init.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+
+        Assertions.assertEquals(3, countRows("game"));
+        gameDAO.clear();
+        Assertions.assertEquals(0, countRows("game"));
     }
 
     @Test
@@ -143,6 +165,38 @@ public class SQLDataAccessTests {
     }
 
     @Test
+    public void getGameSuccess() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            ChessGame chessGame = new ChessGame();
+            String gameJson = new Gson().toJson(chessGame);
+            PreparedStatement init = conn.prepareStatement("""
+            INSERT INTO game (id, whiteUsername, blackUsername, gameName, game)
+            VALUES (1, "whiteuser", "blackuser", "gamename", ?)
+            """);
+
+            init.setString(1, gameJson);
+            init.executeUpdate();
+
+            GameData game = gameDAO.getGame(1);
+
+            Assertions.assertNotNull(game);
+            Assertions.assertEquals("whiteuser", game.whiteUsername());
+            Assertions.assertEquals("blackuser", game.blackUsername());
+            Assertions.assertEquals("gamename", game.gameName());
+            Assertions.assertNotNull(game.game());
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+    }
+
+    @Test
+    public void getGameFail() throws DataAccessException {
+        GameData game = gameDAO.getGame(123);
+
+        Assertions.assertNull(game);
+    }
+
+    @Test
     public void createAuthSuccess() throws DataAccessException {
         AuthData auth = authDAO.createAuth("username");
 
@@ -159,6 +213,15 @@ public class SQLDataAccessTests {
         Assertions.assertEquals("user1", user.username());
         Assertions.assertEquals(hash, user.password());
         Assertions.assertEquals("email1@email.com", user.email());
+    }
+
+    @Test
+    public void createGameSuccess() throws DataAccessException {
+        GameData game = gameDAO.createGame("gamename");
+
+        Assertions.assertNotNull(game.game());
+        Assertions.assertTrue(game.gameID() > 0);
+        Assertions.assertEquals(1, countRows("game"));
     }
 
     @Test
