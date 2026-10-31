@@ -34,7 +34,13 @@ public class Server {
     private final JoinGameHandler joinGameHandler = new JoinGameHandler(gameService);
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        javalin =Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clear)
                 .post("/user", this::register)
                 .post("/session", this::login)
