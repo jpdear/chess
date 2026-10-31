@@ -16,11 +16,6 @@ public class DatabaseManager {
         loadPropertiesFromResources();
     }
 
-    static public void switchDatabases(Properties props) throws DataAccessException {
-        loadProperties(props);
-        createDatabase();
-    }
-
     /**
      * Creates the database if it does not already exist.
      */

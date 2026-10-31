@@ -10,14 +10,11 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Properties;
 
 public class SQLDataAccessTests {
     private SQLAuthDAO authDAO;
@@ -25,15 +22,8 @@ public class SQLDataAccessTests {
     private SQLGameDAO gameDAO;
 
     @BeforeAll
-    public static void initDB() throws DataAccessException, IOException {
-        Properties testProps = new Properties();
-
-        try (InputStream propStream = SQLDataAccessTests.class.getClassLoader().getResourceAsStream("db.properties")) {
-            testProps.load(propStream);
-        }
-
-        testProps.setProperty("db.name", "chessTest");
-        DatabaseManager.switchDatabases(testProps);
+    public static void initDB() throws DataAccessException {
+        DatabaseManager.createDatabase();
     }
 
     @BeforeEach
