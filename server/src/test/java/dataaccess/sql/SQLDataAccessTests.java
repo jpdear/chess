@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Properties;
 
 public class SQLDataAccessTests {
@@ -241,6 +242,68 @@ public class SQLDataAccessTests {
         authDAO.deleteAuth("123456789");
 
         Assertions.assertEquals(0, countRows("auth"));
+    }
+
+    @Test
+    public void updateGameSuccess() throws DataAccessException {
+        ChessGame game = new ChessGame();
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement init = conn.prepareStatement("""
+            INSERT INTO game (id, whiteUsername, blackUsername, gameName, game)
+            VALUES (1, "white", "black", "game", ?)
+            """);
+            init.setString(1, new Gson().toJson(game));
+            init.executeUpdate();
+
+            Assertions.assertEquals(1, countRows("game"));
+            gameDAO.updateGame(
+                    new GameData(
+                            1,
+                            "whitechanged",
+                            "blackchanged",
+                            "gamechanged",
+                            game
+                    )
+            );
+
+            PreparedStatement getRow = conn.prepareStatement("""
+            SELECT whiteUsername, blackUsername, gameName
+            FROM game
+            WHERE id = 1
+            """);
+            ResultSet resultSet = getRow.executeQuery();
+
+            resultSet.next();
+            Assertions.assertEquals("whitechanged", resultSet.getString(1));
+            Assertions.assertEquals("blackchanged", resultSet.getString(2));
+            Assertions.assertEquals("gamechanged", resultSet.getString(3));
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+    }
+
+    @Test
+    public void listGamesSuccess() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement init = conn.prepareStatement("""
+            INSERT INTO game (id, whiteUsername, blackUsername, gameName, game)
+            VALUES
+                (1, "white1", "black1", "game1", ?),
+                (2, "white2", "black2", "game2", ?),
+                (3, "white3", "black3", "game3", ?)
+            """);
+            init.setString(1, new Gson().toJson(new ChessGame()));
+            init.setString(2, new Gson().toJson(new ChessGame()));
+            init.setString(3, new Gson().toJson(new ChessGame()));
+            init.executeUpdate();
+
+            Collection<GameData> games = gameDAO.listGames();
+
+            Assertions.assertEquals(3, games.size());
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
     }
 
     private int countRows(String table) throws DataAccessException {
