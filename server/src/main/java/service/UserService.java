@@ -46,9 +46,7 @@ public class UserService {
             throw new UserNotFoundException("Error: unauthorized");
         }
 
-        String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt());
-
-        if (!BCrypt.checkpw(user.password(), hash)) {
+        if (!BCrypt.checkpw(request.password(), user.password())) {
             throw new UserNotFoundException("Error: unauthorized");
         }
 
