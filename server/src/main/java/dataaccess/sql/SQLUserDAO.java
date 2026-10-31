@@ -1,5 +1,6 @@
-package dataaccess;
+package dataaccess.sql;
 
+import dataaccess.*;
 import model.UserData;
 
 import java.sql.Connection;
