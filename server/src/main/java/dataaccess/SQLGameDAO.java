@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.GameData;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class SQLGameDAO implements GameDAO {
                 String whiteUsername = resultSet.getString(1);
                 String blackUsername = resultSet.getString(2);
                 String gameName = resultSet.getString(3);
-                ChessGame game = serializer.fromJson(resultSet.getString("game"), ChessGame.class);
+                ChessGame game = serializer.fromJson(resultSet.getString(4), ChessGame.class);
 
                 return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
             }
@@ -78,11 +79,51 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+        ArrayList<GameData> games = new ArrayList<>();
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement("""
+            SELECT * FROM game
+            """);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt(1);
+                String whiteUsername = resultSet.getString(2);
+                String blackUsername = resultSet.getString(3);
+                String gameName = resultSet.getString(4);
+                ChessGame game = serializer.fromJson(resultSet.getString(5), ChessGame.class);
+
+                games.add(new GameData(id, whiteUsername, blackUsername, gameName, game));
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
+
+        return games;
     }
 
     @Override
     public void updateGame(GameData game) throws DataAccessException {
-
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement("""
+            UPDATE game
+            set 
+                whiteUsername = ?,
+                blackUsername = ?,
+                gameName = ?,
+                game = ?
+            WHERE id = ?
+            """);
+            preparedStatement.setString(1, game.whiteUsername());
+            preparedStatement.setString(2, game.blackUsername());
+            preparedStatement.setString(3, game.gameName());
+            preparedStatement.setString(4, serializer.toJson(game.game()));
+            preparedStatement.setInt(5, game.gameID());
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Error: %s", ex.getMessage()), ex);
+        }
     }
 }
