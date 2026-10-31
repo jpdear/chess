@@ -4,6 +4,7 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.request.LoginRequest;
 import service.request.LogoutRequest;
 import service.request.RegisterRequest;
@@ -34,7 +35,7 @@ public class UserServiceTests {
         UserData stored = userDAO.getUser("alice");
 
         assertNotNull(stored);
-        assertEquals("pass123", stored.password());
+        assertTrue(BCrypt.checkpw("pass123", stored.password()));
         assertEquals("alice@mail.com", stored.email());
 
         AuthData auth = authDAO.getAuth(result.authToken());
