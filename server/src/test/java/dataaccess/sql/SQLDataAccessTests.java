@@ -10,6 +10,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,14 +25,14 @@ public class SQLDataAccessTests {
     private SQLGameDAO gameDAO;
 
     @BeforeAll
-    public static void initDB() throws DataAccessException {
+    public static void initDB() throws DataAccessException, IOException {
         Properties testProps = new Properties();
-        testProps.setProperty("db.host", "localhost");
-        testProps.setProperty("db.port", "3306");
-        testProps.setProperty("db.name", "chessTest");
-        testProps.setProperty("db.user", "test");
-        testProps.setProperty("db.password", "test");
 
+        try (InputStream propStream = SQLDataAccessTests.class.getClassLoader().getResourceAsStream("db.properties")) {
+            testProps.load(propStream);
+        }
+
+        testProps.setProperty("db.name", "chessTest");
         DatabaseManager.switchDatabases(testProps);
     }
 
