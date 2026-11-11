@@ -41,7 +41,7 @@ public class Server {
             throw new RuntimeException(ex);
         }
 
-        javalin =Javalin.create(config -> config.staticFiles.add("web"))
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clear)
                 .post("/user", this::register)
                 .post("/session", this::login)
