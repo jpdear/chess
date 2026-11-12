@@ -2,6 +2,8 @@ package client;
 
 import chess.*;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -19,8 +21,9 @@ public class ClientMain {
             + "Type 'help' to see a list of valid commands.";
     private static State userState = State.SIGNEDOUT;
     private static final Scanner scanner = new Scanner(System.in);
+    private static final ServerFacade facade = new ServerFacade("http://localhost:8080");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
         System.out.println("Welcome to Chess. Type 'help' to get started.");
 
         while (userState != State.QUIT) {
@@ -36,7 +39,7 @@ public class ClientMain {
         }
     }
 
-    private static void handlePreLogin(String[] args) {
+    private static void handlePreLogin(String[] args) throws URISyntaxException, IOException, InterruptedException {
         String commandName = args[0];
         ArrayList<String> commandArgs = new ArrayList<>();
 
@@ -76,6 +79,7 @@ public class ClientMain {
                 }
 
                 System.out.println("Creating your account...");
+                facade.register(commandArgs.get(0), commandArgs.get(1), commandArgs.get(2));
 
                 break;
             default:
