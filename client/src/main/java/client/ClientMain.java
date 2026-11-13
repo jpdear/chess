@@ -1,10 +1,8 @@
 package client;
 
-import chess.*;
 import model.GameData;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 
 public class ClientMain {
@@ -38,18 +36,25 @@ public class ClientMain {
     private static final Scanner scanner = new Scanner(System.in);
     private static final ServerFacade facade = new ServerFacade("http://localhost:8080");
 
-    public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("Welcome to Chess. Type 'help' to get started.");
 
         while (userState != State.QUIT) {
             System.out.print("[" + userState + "] >>> ");
             String input = scanner.nextLine();
-            String[] inputArgs = input.split(" ");
 
-            if (userState == State.SIGNEDOUT) {
-                handlePreLogin(inputArgs);
-            } else {
-                handlePostLogin(inputArgs);
+            if (input.isBlank()) continue;
+
+            String[] inputArgs = input.trim().split("\\s+");
+
+            try {
+                if (userState == State.SIGNEDOUT) {
+                    handlePreLogin(inputArgs);
+                } else {
+                    handlePostLogin(inputArgs);
+                }
+            } catch (IOException e) {
+                System.out.println("Error: Could not connect to the server. Make sure it is running and try again.");
             }
         }
     }
@@ -63,7 +68,7 @@ public class ClientMain {
             commandArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
         }
 
-        switch (commandName) {
+        switch (commandName.toLowerCase()) {
             case "help":
                 System.out.println("register <username> <password> <email> - create an account");
                 System.out.println("login <username> <password> - log into an existing account");
@@ -107,7 +112,10 @@ public class ClientMain {
 
                 if (isInvalidResult(result)) break;
 
-                System.out.println("Account successfully created! Log in to continue.");
+                userAuth = result.get("authToken").toString();
+                userState = State.SIGNEDIN;
+
+                System.out.println("Account successfully created!");
 
                 break;
             default:
@@ -124,7 +132,7 @@ public class ClientMain {
             commandArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
         }
 
-        switch (commandName) {
+        switch (commandName.toLowerCase()) {
             case "create":
                 if (isInvalidArgsLength(commandArgs.size(), 1)) break;
 
@@ -197,9 +205,10 @@ public class ClientMain {
 
                 if (isInvalidResult(result)) break;
 
-                userAuth = "";
+                userAuth = null;
                 userState = State.SIGNEDOUT;
 
+                gamesList.clear();
                 System.out.println("Successfully logged out.");
 
                 break;
@@ -235,7 +244,7 @@ public class ClientMain {
     }
 
     private static boolean isInvalidResult(Map<String, Object> result) {
-        if (result.get("success") == "false") {
+        if (!(boolean) result.get("success")) {
             System.out.println(result.get("message"));
 
             return true;
