@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import model.GameData;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,6 +32,7 @@ public class ClientMain {
             + "Type 'help' to see a list of valid commands.";
     private static State userState = State.SIGNEDOUT;
     private static String userAuth;
+    private static ArrayList<Integer> gamesList = new ArrayList<>();
     private static final Scanner scanner = new Scanner(System.in);
     private static final ServerFacade facade = new ServerFacade("http://localhost:8080");
 
@@ -114,6 +116,7 @@ public class ClientMain {
     private static void handlePostLogin(String[] args) throws IOException, InterruptedException {
         String commandName = args[0];
         ArrayList<String> commandArgs = new ArrayList<>();
+        Map<String, Object> result;
 
         if (args.length > 1) {
             commandArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
@@ -125,9 +128,32 @@ public class ClientMain {
 
                 System.out.println("Creating game...");
 
+                result = facade.createGame(userAuth, commandArgs.getFirst());
+
+                if (isInvalidResult(result)) break;
+
+                System.out.println("Game successfully created!");
+
                 break;
             case "list":
+                result = facade.listGames(userAuth);
+
+                if (isInvalidResult(result)) break;
+
                 System.out.println("All Games:");
+
+                GameData[] games = (GameData[]) result.get("games");
+
+                for (int i = 0; i < games.length; i++) {
+                    GameData game = games[i];
+
+                    gamesList.add(game.gameID());
+
+                    String whiteName = game.whiteUsername() != null ? game.whiteUsername() : "N/A";
+                    String blackName = game.blackUsername() != null ? game.blackUsername() : "N/A";
+
+                    System.out.println(i+1 + ". " + game.gameName() + " - WHITE: " + whiteName + ", BLACK: " + blackName);
+                }
 
                 break;
             case "join":
@@ -149,7 +175,7 @@ public class ClientMain {
             case "logout":
                 System.out.println("Logging you out...");
 
-                Map<String, Object> result = facade.logout(userAuth);
+                result = facade.logout(userAuth);
 
                 if (isInvalidResult(result)) break;
 
@@ -161,6 +187,7 @@ public class ClientMain {
                 break;
             case "quit":
                 System.out.println("Goodbye!");
+
                 userState = State.QUIT;
 
                 break;

@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import model.GameData;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -51,9 +52,27 @@ public class ServerFacade {
 
         return handleResponse(response);
     }
-    public void createGame(String name) {}
+    public Map<String, Object> createGame(String authToken, String name) throws IOException, InterruptedException {
+        String jsonBody = gson.toJson(Map.of(
+                "gameName", name
+        ));
+        HttpResponse<String> response = sendRequest("/game", "POST", jsonBody, authToken);
 
-    public void listGames() {}
+        return handleResponse(response);
+    }
+
+    public Map<String, Object> listGames(String authToken) throws IOException, InterruptedException {
+        HttpResponse<String> response = sendRequest("/game", "GET", null, authToken);
+        Map<String, Object> result = handleResponse(response);
+
+        if (result.containsKey("games")) {
+            GameData[] games = gson.fromJson(gson.toJsonTree(result.get("games")), GameData[].class);
+
+            result.put("games", games);
+        }
+
+        return result;
+    }
 
     public void joinGame(String gameID) {}
 
