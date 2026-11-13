@@ -74,7 +74,15 @@ public class ServerFacade {
         return result;
     }
 
-    public void joinGame(String gameID) {}
+    public Map<String, Object> joinGame(String authToken, int gameID, String color) throws IOException, InterruptedException {
+        String jsonBody = gson.toJson(Map.of(
+                "playerColor", color,
+                "gameID", gameID
+        ));
+        HttpResponse<String> response = sendRequest("/game", "PUT", jsonBody, authToken);
+
+        return handleResponse(response);
+    }
 
     private HttpResponse<String> sendRequest(String endpoint, String method, String body) throws IOException, InterruptedException {
         BodyPublisher publisher = body != null ? BodyPublishers.ofString(body) : BodyPublishers.noBody();

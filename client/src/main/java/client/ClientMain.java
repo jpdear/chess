@@ -157,13 +157,21 @@ public class ClientMain {
 
                 break;
             case "join":
-                if (commandArgs.isEmpty() || commandArgs.size() > 2) {
-                    System.out.println(invalidArgsMessage);
-
-                    break;
-                }
+                if (isInvalidArgsLength(commandArgs.size(), 2)) break;
 
                 System.out.println("Joining game...");
+
+                try {
+                    int requestedID = Integer.parseInt(commandArgs.getFirst());
+                    int gameID = gamesList.get(requestedID-1);
+                    result = facade.joinGame(userAuth, gameID, commandArgs.get(1));
+
+                    if (isInvalidResult(result)) break;
+
+                    System.out.println("Success!");
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: Invalid game ID. Please enter a valid ID.");
+                }
 
                 break;
             case "observe":
