@@ -119,11 +119,7 @@ public class ServerFacade {
         Map<String, Object> responseBody = gson.fromJson(response.body(), mapType);
         int statusCode = response.statusCode();
 
-        if (statusCode >= 300) {
-            responseBody.put("success", "false");
-        } else {
-            responseBody.put("success", "true");
-        }
+        responseBody.put("success", statusCode < 300);
 
         return responseBody;
     }
