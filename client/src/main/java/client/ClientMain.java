@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ClientMain {
@@ -20,6 +21,7 @@ public class ClientMain {
     private static final String unknownCommandMessage = "Unknown command. "
             + "Type 'help' to see a list of valid commands.";
     private static State userState = State.SIGNEDOUT;
+    private static String userAuth;
     private static final Scanner scanner = new Scanner(System.in);
     private static final ServerFacade facade = new ServerFacade("http://localhost:8080");
 
@@ -71,7 +73,17 @@ public class ClientMain {
                 if (isInvalidArgsLength(commandArgs.size(), 3)) break;
 
                 System.out.println("Creating your account...");
-                facade.register(commandArgs.get(0), commandArgs.get(1), commandArgs.get(2));
+                Map<String, Object> result = facade.register(
+                        commandArgs.get(0),
+                        commandArgs.get(1),
+                        commandArgs.get(2)
+                );
+
+                if (isInvalidResult(result)) break;
+
+                userAuth = result.get("authToken").toString();
+
+                System.out.println("Account successfully created! Log in to continue.");
 
                 break;
             default:
@@ -142,6 +154,16 @@ public class ClientMain {
     private static boolean isInvalidArgsLength(int size, int requiredArgs) {
         if (size != requiredArgs) {
             System.out.println(invalidArgsMessage);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isInvalidResult(Map<String, Object> result) {
+        if (result.get("success") == "false") {
+            System.out.println(result.get("message"));
 
             return true;
         }
