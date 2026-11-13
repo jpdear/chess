@@ -35,7 +35,15 @@ public class ServerFacade {
 
         return handleResponse(response);
     }
-    public void login(String username, String password) {}
+    public Map<String, Object> login(String username, String password) throws IOException, InterruptedException {
+        String jsonBody = gson.toJson(Map.of(
+                "username", username,
+                "password", password
+        ));
+        HttpResponse<String> response = sendRequest("/session", "POST", jsonBody);
+
+        return handleResponse(response);
+    }
     public void logout() {}
     public void createGame(String name) {}
     public void listGames() {}
