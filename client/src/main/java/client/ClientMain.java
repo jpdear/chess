@@ -1,6 +1,8 @@
 package client;
 
+import chess.ChessGame;
 import model.GameData;
+import ui.BoardRenderer;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,20 +25,22 @@ public class ClientMain {
         }
     }
 
-    private static final String invalidArgsMessage =
+    private static final String INVALID_ARGS_MESSAGE =
             "Invalid number of arguments. "
                     + "Type 'help' to see a list of valid commands.";
-    private static final String unknownCommandMessage = "Unknown command. "
+    private static final String UNKNOWN_COMMAND_MESSAGE = "Unknown command. "
             + "Type 'help' to see a list of valid commands.";
-    private static final String invalidGameIDMessage =
-            "Error: Invalid game ID. Please enter a valid ID.";
+    private static final String INVALID_GAME_ID_MESSAGE =
+            "Error: Invalid game ID. Please enter a valid ID. Type 'list' to see games.";
+    private static final String SESSION_EXPIRED_MESSAGE =
+            "Your session has expired. Please log in again.";
     private static State userState = State.SIGNEDOUT;
     private static String userAuth;
     private static ArrayList<Integer> gamesList = new ArrayList<>();
     private static final Scanner scanner = new Scanner(System.in);
     private static final ServerFacade facade = new ServerFacade("http://localhost:8080");
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         System.out.println("Welcome to Chess. Type 'help' to get started.");
 
         while (userState != State.QUIT) {
@@ -55,6 +59,10 @@ public class ClientMain {
                 }
             } catch (IOException e) {
                 System.out.println("Error: Could not connect to the server. Make sure it is running and try again.");
+            } catch (InterruptedException e) {
+                System.out.println("Error: The request was cancelled. Please try again.");
+            } catch (Exception e) {
+                System.out.println("Error: Something went wrong. Please restart the application.");
             }
         }
     }
@@ -91,7 +99,10 @@ public class ClientMain {
                         commandArgs.get(1)
                 );
 
-                if (isInvalidResult(result)) break;
+                if (isInvalidResult(result, Map.of(
+                        400, "Please enter both a username and password.",
+                        401, "Incorrect username or password."
+                ))) break;
 
                 System.out.println("Successfully logged in!");
 
@@ -110,7 +121,10 @@ public class ClientMain {
                         commandArgs.get(2)
                 );
 
-                if (isInvalidResult(result)) break;
+                if (isInvalidResult(result, Map.of(
+                        400, "Please enter a username, password, and email.",
+                        403, "That username is already taken."
+                ))) break;
 
                 userAuth = result.get("authToken").toString();
                 userState = State.SIGNEDIN;
@@ -119,7 +133,7 @@ public class ClientMain {
 
                 break;
             default:
-                System.out.println(unknownCommandMessage);
+                System.out.println(UNKNOWN_COMMAND_MESSAGE);
         }
     }
 
@@ -140,7 +154,10 @@ public class ClientMain {
 
                 result = facade.createGame(userAuth, commandArgs.getFirst());
 
-                if (isInvalidResult(result)) break;
+                if (isInvalidResult(result, Map.of(
+                        400, "Please enter a game name.",
+                        401, SESSION_EXPIRED_MESSAGE
+                ))) break;
 
                 System.out.println("Game successfully created!");
 
@@ -148,7 +165,9 @@ public class ClientMain {
             case "list":
                 result = facade.listGames(userAuth);
 
-                if (isInvalidResult(result)) break;
+                if (isInvalidResult(result, Map.of(
+                        401, SESSION_EXPIRED_MESSAGE
+                ))) break;
 
                 gamesList.clear();
                 System.out.println("All Games:");
@@ -170,32 +189,40 @@ public class ClientMain {
             case "join":
                 if (isInvalidArgsLength(commandArgs.size(), 2)) break;
 
+                Integer joinGameID = getGameID(commandArgs.getFirst());
+
+                if (joinGameID == null) break;
+
                 System.out.println("Joining game...");
 
-                try {
-                    int requestedID = Integer.parseInt(commandArgs.getFirst());
+                String color = commandArgs.get(1);
+                result = facade.joinGame(userAuth, joinGameID, color);
 
-                    if (requestedID < 1 || requestedID > gamesList.size()) {
-                        System.out.println(invalidGameIDMessage);
+                if (isInvalidResult(result, Map.of(
+                        400, "Please choose WHITE or BLACK.",
+                        401, SESSION_EXPIRED_MESSAGE,
+                        403, "That color is already taken for this game."
+                ))) break;
 
-                        break;
-                    }
+                System.out.println("Success!");
 
-                    int gameID = gamesList.get(requestedID-1);
-                    result = facade.joinGame(userAuth, gameID, commandArgs.get(1));
+                ChessGame.TeamColor teamColor = color.equalsIgnoreCase("white")
+                        ? ChessGame.TeamColor.WHITE
+                        : ChessGame.TeamColor.BLACK;
 
-                    if (isInvalidResult(result)) break;
-
-                    System.out.println("Success!");
-                } catch (NumberFormatException e) {
-                    System.out.println(invalidGameIDMessage);
-                }
+                BoardRenderer.renderBoard(new ChessGame().getBoard(), teamColor);
 
                 break;
             case "observe":
                 if (isInvalidArgsLength(commandArgs.size(), 1)) break;
 
+                Integer observeGameID = getGameID(commandArgs.getFirst());
+
+                if (observeGameID == null) break;
+
                 System.out.println("Observing game...");
+
+                BoardRenderer.renderBoard(new ChessGame().getBoard(), ChessGame.TeamColor.WHITE);
 
                 break;
             case "logout":
@@ -203,7 +230,9 @@ public class ClientMain {
 
                 result = facade.logout(userAuth);
 
-                if (isInvalidResult(result)) break;
+                if (isInvalidResult(result, Map.of(
+                        401, SESSION_EXPIRED_MESSAGE
+                ))) break;
 
                 userAuth = null;
                 userState = State.SIGNEDOUT;
@@ -229,13 +258,13 @@ public class ClientMain {
 
                 break;
             default:
-                System.out.println(unknownCommandMessage);
+                System.out.println(UNKNOWN_COMMAND_MESSAGE);
         }
     }
 
     private static boolean isInvalidArgsLength(int size, int requiredArgs) {
         if (size != requiredArgs) {
-            System.out.println(invalidArgsMessage);
+            System.out.println(INVALID_ARGS_MESSAGE);
 
             return true;
         }
@@ -243,9 +272,34 @@ public class ClientMain {
         return false;
     }
 
-    private static boolean isInvalidResult(Map<String, Object> result) {
+    private static Integer getGameID(String arg) {
+        try {
+            int requestedID = Integer.parseInt(arg);
+
+            if (requestedID < 1 || requestedID > gamesList.size()) {
+                System.out.println(INVALID_GAME_ID_MESSAGE);
+
+                return null;
+            }
+
+            return gamesList.get(requestedID - 1);
+        } catch (NumberFormatException e) {
+            System.out.println(INVALID_GAME_ID_MESSAGE);
+
+            return null;
+        }
+    }
+
+    private static boolean isInvalidResult(Map<String, Object> result, Map<Integer, String> messages) {
         if (!(boolean) result.get("success")) {
-            System.out.println(result.get("message"));
+            int status = (int) result.get("status");
+
+            System.out.println(
+                    "Error: " + messages.getOrDefault(
+                            status,
+                            "Something went wrong. Please try again."
+                    )
+            );
 
             return true;
         }
