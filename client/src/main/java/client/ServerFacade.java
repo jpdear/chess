@@ -84,6 +84,12 @@ public class ServerFacade {
         return handleResponse(response);
     }
 
+    private Map<String, Object> clear() throws IOException, InterruptedException {
+        HttpResponse<String> response = sendRequest("/db", "DELETE", null);
+
+        return handleResponse(response);
+    }
+
     private HttpResponse<String> sendRequest(String endpoint, String method, String body) throws IOException, InterruptedException {
         BodyPublisher publisher = body != null ? BodyPublishers.ofString(body) : BodyPublishers.noBody();
         HttpRequest request = HttpRequest.newBuilder()
