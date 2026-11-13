@@ -35,6 +35,7 @@ public class ServerFacade {
 
         return handleResponse(response);
     }
+
     public Map<String, Object> login(String username, String password) throws IOException, InterruptedException {
         String jsonBody = gson.toJson(Map.of(
                 "username", username,
@@ -44,9 +45,16 @@ public class ServerFacade {
 
         return handleResponse(response);
     }
-    public void logout() {}
+
+    public Map<String, Object> logout(String authToken) throws IOException, InterruptedException {
+        HttpResponse<String> response = sendRequest("/session", "DELETE", null, authToken);
+
+        return handleResponse(response);
+    }
     public void createGame(String name) {}
+
     public void listGames() {}
+
     public void joinGame(String gameID) {}
 
     private HttpResponse<String> sendRequest(String endpoint, String method, String body) throws IOException, InterruptedException {
@@ -56,6 +64,24 @@ public class ServerFacade {
                 .timeout(timeout)
                 .method(method, publisher)
                 .header("Content-Type", "application/json")
+                .build();
+
+        return httpClient.send(request, BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> sendRequest(
+            String endpoint,
+            String method,
+            String body,
+            String authToken
+    ) throws IOException, InterruptedException {
+        BodyPublisher publisher = body != null ? BodyPublishers.ofString(body) : BodyPublishers.noBody();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + endpoint))
+                .timeout(timeout)
+                .method(method, publisher)
+                .header("Content-Type", "application/json")
+                .header("authorization", authToken)
                 .build();
 
         return httpClient.send(request, BodyHandlers.ofString());

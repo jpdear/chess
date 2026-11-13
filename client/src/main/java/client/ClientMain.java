@@ -111,7 +111,7 @@ public class ClientMain {
         }
     }
 
-    private static void handlePostLogin(String[] args) {
+    private static void handlePostLogin(String[] args) throws IOException, InterruptedException {
         String commandName = args[0];
         ArrayList<String> commandArgs = new ArrayList<>();
 
@@ -148,7 +148,15 @@ public class ClientMain {
                 break;
             case "logout":
                 System.out.println("Logging you out...");
+
+                Map<String, Object> result = facade.logout(userAuth);
+
+                if (isInvalidResult(result)) break;
+
+                userAuth = "";
                 userState = State.SIGNEDOUT;
+
+                System.out.println("Successfully logged out.");
 
                 break;
             case "quit":
