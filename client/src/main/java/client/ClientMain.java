@@ -61,22 +61,14 @@ public class ClientMain {
 
                 break;
             case "login":
-                if (commandArgs.size() != 2) {
-                    System.out.println(invalidArgsMessage);
-
-                    break;
-                }
+                if (isInvalidArgsLength(commandArgs.size(), 2)) break;
 
                 System.out.println("Logging you in...");
                 userState = State.SIGNEDIN;
 
                 break;
             case "register":
-                if (commandArgs.size() != 3) {
-                    System.out.println(invalidArgsMessage);
-
-                    break;
-                }
+                if (isInvalidArgsLength(commandArgs.size(), 3)) break;
 
                 System.out.println("Creating your account...");
                 facade.register(commandArgs.get(0), commandArgs.get(1), commandArgs.get(2));
@@ -97,11 +89,7 @@ public class ClientMain {
 
         switch (commandName) {
             case "create":
-                if (commandArgs.size() != 1) {
-                    System.out.println(invalidArgsMessage);
-
-                    break;
-                }
+                if (isInvalidArgsLength(commandArgs.size(), 1)) break;
 
                 System.out.println("Creating game...");
 
@@ -121,11 +109,7 @@ public class ClientMain {
 
                 break;
             case "observe":
-                if (commandArgs.size() != 1) {
-                    System.out.println(invalidArgsMessage);
-
-                    break;
-                }
+                if (isInvalidArgsLength(commandArgs.size(), 1)) break;
 
                 System.out.println("Observing game...");
 
@@ -153,5 +137,15 @@ public class ClientMain {
             default:
                 System.out.println(unknownCommandMessage);
         }
+    }
+
+    private static boolean isInvalidArgsLength(int size, int requiredArgs) {
+        if (size != requiredArgs) {
+            System.out.println(invalidArgsMessage);
+
+            return true;
+        }
+
+        return false;
     }
 }
