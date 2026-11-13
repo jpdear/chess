@@ -14,6 +14,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ServerFacade {
@@ -123,9 +124,13 @@ public class ServerFacade {
     private Map<String, Object> handleResponse(HttpResponse<String> response) {
         Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
         Map<String, Object> responseBody = gson.fromJson(response.body(), mapType);
+
+        if (responseBody == null) responseBody = new HashMap<>();
+
         int statusCode = response.statusCode();
 
         responseBody.put("success", statusCode < 300);
+        responseBody.put("status", statusCode);
 
         return responseBody;
     }
