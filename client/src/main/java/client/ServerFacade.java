@@ -84,7 +84,7 @@ public class ServerFacade {
         return handleResponse(response);
     }
 
-    private Map<String, Object> clear() throws IOException, InterruptedException {
+    public Map<String, Object> clear() throws IOException, InterruptedException {
         HttpResponse<String> response = sendRequest("/db", "DELETE", null);
 
         return handleResponse(response);
