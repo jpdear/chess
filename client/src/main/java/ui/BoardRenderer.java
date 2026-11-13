@@ -7,7 +7,7 @@ import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 
 public class BoardRenderer {
-    private final static String[] colLabels = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    private static final String[] COL_LABELS = {"a", "b", "c", "d", "e", "f", "g", "h"};
 
     public static void renderBoard(ChessBoard chessBoard, ChessGame.TeamColor color) {
         ChessPiece[][] board = chessBoard.getBoard();
@@ -23,7 +23,7 @@ public class BoardRenderer {
         System.out.print("  ");
 
         for (int i = colStart; i >= 0 && i < board.length; i += colItr) {
-            System.out.print("\u2003" + colLabels[i] + "\u2003");
+            System.out.print("\u2003" + COL_LABELS[i] + "\u2003");
         }
 
         for (int row = rowStart; inBounds(board.length, row, color); row += rowItr) {
@@ -83,7 +83,7 @@ public class BoardRenderer {
         System.out.print("  ");
 
         for (int i = colStart; i >= 0 && i < board.length; i += colItr) {
-            System.out.print("\u2003" + colLabels[i] + "\u2003");
+            System.out.print("\u2003" + COL_LABELS[i] + "\u2003");
         }
 
         System.out.println();

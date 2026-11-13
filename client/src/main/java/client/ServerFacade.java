@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServerFacade {
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private final String serverUrl;
     private final Gson gson = new Gson();
     private final Duration timeout = Duration.ofMillis(5000);
@@ -100,7 +100,7 @@ public class ServerFacade {
                 .header("Content-Type", "application/json")
                 .build();
 
-        return httpClient.send(request, BodyHandlers.ofString());
+        return HTTP_CLIENT.send(request, BodyHandlers.ofString());
     }
 
     private HttpResponse<String> sendRequest(
@@ -118,14 +118,16 @@ public class ServerFacade {
                 .header("authorization", authToken)
                 .build();
 
-        return httpClient.send(request, BodyHandlers.ofString());
+        return HTTP_CLIENT.send(request, BodyHandlers.ofString());
     }
 
     private Map<String, Object> handleResponse(HttpResponse<String> response) {
         Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
         Map<String, Object> responseBody = gson.fromJson(response.body(), mapType);
 
-        if (responseBody == null) responseBody = new HashMap<>();
+        if (responseBody == null) {
+            responseBody = new HashMap<>();
+        }
 
         int statusCode = response.statusCode();
 
