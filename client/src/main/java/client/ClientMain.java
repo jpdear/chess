@@ -30,6 +30,8 @@ public class ClientMain {
                     + "Type 'help' to see a list of valid commands.";
     private static final String unknownCommandMessage = "Unknown command. "
             + "Type 'help' to see a list of valid commands.";
+    private static final String invalidGameIDMessage =
+            "Error: Invalid game ID. Please enter a valid ID.";
     private static State userState = State.SIGNEDOUT;
     private static String userAuth;
     private static ArrayList<Integer> gamesList = new ArrayList<>();
@@ -140,6 +142,7 @@ public class ClientMain {
 
                 if (isInvalidResult(result)) break;
 
+                gamesList.clear();
                 System.out.println("All Games:");
 
                 GameData[] games = (GameData[]) result.get("games");
@@ -163,6 +166,13 @@ public class ClientMain {
 
                 try {
                     int requestedID = Integer.parseInt(commandArgs.getFirst());
+
+                    if (requestedID < 1 || requestedID > gamesList.size()) {
+                        System.out.println(invalidGameIDMessage);
+
+                        break;
+                    }
+
                     int gameID = gamesList.get(requestedID-1);
                     result = facade.joinGame(userAuth, gameID, commandArgs.get(1));
 
@@ -170,7 +180,7 @@ public class ClientMain {
 
                     System.out.println("Success!");
                 } catch (NumberFormatException e) {
-                    System.out.println("Error: Invalid game ID. Please enter a valid ID.");
+                    System.out.println(invalidGameIDMessage);
                 }
 
                 break;
