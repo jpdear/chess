@@ -4,17 +4,26 @@ import chess.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class ClientMain {
-    public enum State {
-        QUIT,
-        SIGNEDOUT,
-        SIGNEDIN
+    private enum State {
+        QUIT("Quit"),
+        SIGNEDOUT("LOGGED OUT"),
+        SIGNEDIN("LOGGED IN");
+
+        private final String label;
+
+        State(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
+
     private static final String invalidArgsMessage =
             "Invalid number of arguments. "
                     + "Type 'help' to see a list of valid commands.";
@@ -29,7 +38,7 @@ public class ClientMain {
         System.out.println("Welcome to Chess. Type 'help' to get started.");
 
         while (userState != State.QUIT) {
-            System.out.print(">>> ");
+            System.out.print("[" + userState + "] >>> ");
             String input = scanner.nextLine();
             String[] inputArgs = input.split(" ");
 
@@ -44,6 +53,7 @@ public class ClientMain {
     private static void handlePreLogin(String[] args) throws IOException, InterruptedException {
         String commandName = args[0];
         ArrayList<String> commandArgs = new ArrayList<>();
+        Map<String, Object> result;
 
         if (args.length > 1) {
             commandArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
@@ -66,6 +76,17 @@ public class ClientMain {
                 if (isInvalidArgsLength(commandArgs.size(), 2)) break;
 
                 System.out.println("Logging you in...");
+
+                result = facade.login(
+                        commandArgs.get(0),
+                        commandArgs.get(1)
+                );
+
+                if (isInvalidResult(result)) break;
+
+                System.out.println("Successfully logged in!");
+
+                userAuth = result.get("authToken").toString();
                 userState = State.SIGNEDIN;
 
                 break;
@@ -73,15 +94,14 @@ public class ClientMain {
                 if (isInvalidArgsLength(commandArgs.size(), 3)) break;
 
                 System.out.println("Creating your account...");
-                Map<String, Object> result = facade.register(
+
+                result = facade.register(
                         commandArgs.get(0),
                         commandArgs.get(1),
                         commandArgs.get(2)
                 );
 
                 if (isInvalidResult(result)) break;
-
-                userAuth = result.get("authToken").toString();
 
                 System.out.println("Account successfully created! Log in to continue.");
 
