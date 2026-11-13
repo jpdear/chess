@@ -39,7 +39,7 @@ public class ClientMain {
         }
     }
 
-    private static void handlePreLogin(String[] args) throws URISyntaxException, IOException, InterruptedException {
+    private static void handlePreLogin(String[] args) throws IOException, InterruptedException {
         String commandName = args[0];
         ArrayList<String> commandArgs = new ArrayList<>();
 

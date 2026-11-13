@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -17,20 +16,21 @@ public class ServerFacade {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private final String serverUrl;
     private final Gson gson = new Gson();
+    private final Duration timeout = Duration.ofMillis(5000);
 
     public ServerFacade (String url) {
         this.serverUrl = url;
     }
 
-    public void register(String username, String password, String email) throws URISyntaxException, IOException, InterruptedException {
+    public void register(String username, String password, String email) throws IOException, InterruptedException {
         String jsonBody = gson.toJson(Map.of(
                 "username", username,
                 "password", password,
                 "email", email
         ));
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(serverUrl + "/user"))
-                .timeout(Duration.ofMillis(5000))
+                .uri(URI.create(serverUrl + "/user"))
+                .timeout(timeout)
                 .POST(BodyPublishers.ofString(jsonBody))
                 .header("Content-Type", "application/json")
                 .build();
