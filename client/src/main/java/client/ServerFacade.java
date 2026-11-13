@@ -1,11 +1,14 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -22,25 +25,45 @@ public class ServerFacade {
         this.serverUrl = url;
     }
 
-    public void register(String username, String password, String email) throws IOException, InterruptedException {
+    public Map<String, Object> register(String username, String password, String email) throws IOException, InterruptedException {
         String jsonBody = gson.toJson(Map.of(
                 "username", username,
                 "password", password,
                 "email", email
         ));
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + "/user"))
-                .timeout(timeout)
-                .POST(BodyPublishers.ofString(jsonBody))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        HttpResponse<String> response = sendRequest("/user", "POST", jsonBody);
 
-        System.out.println(response.body());
+        return handleResponse(response);
     }
     public void login(String username, String password) {}
     public void logout() {}
     public void createGame(String name) {}
     public void listGames() {}
     public void joinGame(String gameID) {}
+
+    private HttpResponse<String> sendRequest(String endpoint, String method, String body) throws IOException, InterruptedException {
+        BodyPublisher publisher = body != null ? BodyPublishers.ofString(body) : BodyPublishers.noBody();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + endpoint))
+                .timeout(timeout)
+                .method(method, publisher)
+                .header("Content-Type", "application/json")
+                .build();
+
+        return httpClient.send(request, BodyHandlers.ofString());
+    }
+
+    private Map<String, Object> handleResponse(HttpResponse<String> response) {
+        Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
+        Map<String, Object> responseBody = gson.fromJson(response.body(), mapType);
+        int statusCode = response.statusCode();
+
+        if (statusCode >= 300) {
+            responseBody.put("success", "false");
+        } else {
+            responseBody.put("success", "true");
+        }
+
+        return responseBody;
+    }
 }
